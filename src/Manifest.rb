@@ -33,7 +33,7 @@ class Manifest < Revlog
     end
 
     def manifest(rev)
-        
+        #
     end
 
     def add_manifest(map, p1 = nil, p2 = nil)
