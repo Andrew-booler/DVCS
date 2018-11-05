@@ -63,5 +63,5 @@ when "help"
     # TODO
     puts "Here is some help"
 else
-    puts "jsaw: 'j' is not a valid command. See 'jsaw help'."
+    puts "jsaw: '#{cmd}' is not a valid command. See 'jsaw help'."
 end
