@@ -1,0 +1,67 @@
+#!/usr/bin/env ruby
+
+# exit if script called with no arguments
+exit if ARGV.length == 0
+
+# get command line arguments
+cmd = ARGV[0]
+args = ARGV[1..ARGV.length]
+
+
+# creates an empty repository
+if cmd == "init"
+    # TODO: create new repo if none exits
+    exit
+end
+
+# TODO: build repo from exisiting files
+# to be used in commands below
+# applies if not init
+
+# TODO: Do we need a branch command?
+
+case cmd
+# add speific files for tracking
+# maybe starts with simple single file additions
+# and then add ability to accept patterns
+when "add"
+    # TODO
+# remove specific files from tracking list
+when "remove"
+    # TODO
+# check the status of the current repo compared to the head
+when "status"
+    # TODO
+# print out the current heads
+when "heads"
+    # TODO
+# check the changes between two different revisions
+when "diff"
+    # TODO
+# switch to a specific revision in history
+when "checkout"
+    # TODO
+# output a file version from a given revision
+when "cat"
+    # TODO
+# commit staged changes -> create new revision
+when "commit"
+    # TODO
+# print the changelog (i.e. revision history)
+when "log"
+    # TODO
+# merge two revisions
+when "merge"
+    # TODO
+# pull the changes from another repository
+when "pull"
+    # TODO
+# push the changes into another repository
+when "push"
+    # TODO
+when "help"
+    # TODO
+    puts "Here is some help"
+else
+    puts "jsaw: 'j' is not a valid command. See 'jsaw help'."
+end
