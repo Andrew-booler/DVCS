@@ -46,7 +46,7 @@ class Changelog < Revlog
     def extract(text)
 	#
     end
-
+#
     def changeset(rev)
 
     end
