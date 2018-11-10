@@ -22,10 +22,10 @@ class Manifest < Revlog
         return hash
     end
 
-    def add_manifest(file_hash, p1 = nil, p2 = nil)
-        file_hash = file_hash.sort
+    def add_manifest(file_map, p1 = nil, p2 = nil)
+        file_map = file_hash.sort
         arr = []
-        file_hash.each {|name, name_hash| arr << name + " " + name_hash}
+        file_map.each {|name, name_hash| arr << name + " " + name_hash}
         text = arr.join("\n")
         return self.addrevision(text,p1,p2)
     end
