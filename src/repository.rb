@@ -1,5 +1,5 @@
-require 'changelog'
-require 'helpers'
+require_relative 'changelog'
+require_relative 'helpers'
 
 class Repository
     @path = ''
@@ -29,6 +29,7 @@ class Repository
                 File.open(f+'.tmp', 'w').write(File.open(f).read())
                 File.rename(f+'.tmp', f)
             end
+        end
         return File.open(join(path), mode)
     end
 
@@ -45,14 +46,12 @@ class Repository
         delete = []
         begin
             File.open('.jsaw/to-add').each_line{|l| update << l[0..-2]}
-        end
         rescue IOError
             p "to-add file error"
             update = false
         end
         begin
-            File.open('.jsaw/to-delete'.each_line{|l| delete << l[0..-2]}
-        end
+            File.open('.jsaw/to-delete').each_line{|l| delete << l[0..-2]}
         rescue
             p "to-delete file error"
             delete = false
@@ -68,9 +67,7 @@ class Repository
         # update manifest
         old = @manifest.manifest(@manifest.tip())
         old.update(new)
-        for f in delete
-            old.delete(f)
-        end
+        delete.each{|f| old.delete(f) }
         rev = @manifest.addmanifest(old)
         # add changeset
         new = new.keys()
@@ -112,10 +109,11 @@ class Repository
                 added << f
                 p "A #{f}"
             end
+        end
         deleted = dc.keys()
         deleted.sort()
         deleted.each{|d| p "D #{d}"}        
-        end
+        
     end
 
     def add(list)
