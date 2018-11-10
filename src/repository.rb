@@ -79,6 +79,15 @@ class Repository
         File.delete(self.join("to-delete")) if delete
     end
 
+    def checkdir(path)
+        dirName = File.basename(path)
+        return if !dirName
+        if !File.directory?(dirName)
+            checkdir(dirName)
+            Dir.mkdir(dirName)
+        end
+    end
+
     def dirdiff(path)
         dc = {}
         pos = 0
