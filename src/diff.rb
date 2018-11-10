@@ -1,36 +1,20 @@
-require 'diffy'
-include FileUtils
+require 'diff/lcs'
 
+# Example usage
+#
+# p textdiff("aa\nbb\n", "bb\naa\n") # produces [[["-", 0, "aa\n"]], [["+", 1, "aa\n"]]]
+# p patch("aa\nbb\n", textdiff("aa\nbb\n", "bb\naa\n")) # produces ["bb\n", "aa\n"]
+#
+# include this in other files with `require_relative 'diff.rb'`
 
-s1 = "hello"
-s2 = "hello2"
-s = Diffy::Diff.new(s1, s2)
-
-# p FileUtils.compare_file('./diff.rb', './jsaw')
-
-def file_diff(a, b)
-    lines1 = File.readlines(a).each
-    lines2 = File.readlines(b).each
-
-    i = 1
-    loop do
-        puts "line #{i}: -file1, +file2" if lines1.next != lines2.next
-        i += 1
-    end
-
-    loop do
-        lines1.next
-        puts "line #{i}: -file1"
-        i += 1
-    end
-
-    loop do
-        lines2.next
-        puts "line #{i}: +file2"
-        i += 1
-    end
+def linesplit(str)
+    str.lines
 end
 
-file_diff('./diff.rb', './jsaw')
+def textdiff(prev_str, new_str)
+    return Diff::LCS.diff(linesplit(prev_str), linesplit(new_str))
+end
 
-# lines1 = File.readlines('./diff.rb').each { |x| p x }
+def patch(prev_str, diffs)
+    return Diff::LCS.patch!(linesplit(prev_str), diffs)
+end
