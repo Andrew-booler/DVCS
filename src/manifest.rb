@@ -14,16 +14,16 @@ class Manifest < Revlog
     def manifest(rev)
         text = self.revision(rev)    
         hash = {}
-        text.lines.each do |e|
-            key = e.split(" ")[0]
-            value = e.split(" ")[1]
+        text.lines.each do |l|
+            key = l.split(" ")[0]
+            value = l.split(" ")[1]
             hash[key] = value
         end
         return hash
     end
 
     def add_manifest(file_map, p1 = nil, p2 = nil)
-        file_map = file_hash.sort
+        file_map = file_map.sort
         arr = []
         file_map.each {|name, name_hash| arr << name + " " + name_hash}
         text = arr.join("\n")
