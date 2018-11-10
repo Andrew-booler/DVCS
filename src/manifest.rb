@@ -14,10 +14,9 @@ class Manifest < Revlog
     def manifest(rev)
         text = self.revision(rev)    
         hash = {}
-        text.lines.each do |l|
-            key = l.split(" ")[0]
-            value = l.split(" ")[1]
-            hash[key] = value
+        text.lines.each do |line|
+            name,name_hash = line.split(" ")
+            hash[name] = name_hash
         end
         return hash
     end
