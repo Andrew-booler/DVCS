@@ -9,7 +9,7 @@ class Filelog < Revlog
         
         index_dir = File.join(dir, "index")
         data_dir = File.join(dir, "data")
-        #
+        
         p index_dir
         p data_dir
         
