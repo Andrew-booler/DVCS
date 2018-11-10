@@ -15,18 +15,19 @@ class Repository
             # TODO: make other files
         end
         # initilize head changeLog and minifest
-        @changeLog = ChangeLog.new(self, @path)
+        @changelog = ChangeLog.new(self, @path)
         @manifest = Manifest.new(self, @path)
         # fileLogs???
     end
 
+    # might not work with path instread of just filenames 
     def open(path, mode = "r")
         f = join(path)
         if mode == "a" and File.file?(f)
             s = File.stat(f)
             if s.nlink > 1
-                # WTFF!!
-                # File.open(f+'.tmp', "w")
+                File.open(f+'.tmp', 'w').write(File.open(f).read())
+                File.rename(f+'.tmp', f)
             end
         return File.open(join(path), mode)
     end
@@ -44,10 +45,17 @@ class Repository
         delete = []
         begin
             File.open('.jsaw/to-add').each_line{|l| update << l[0..-2]}
-            File.open('.jsaw/to-delete'.each_line{|l| delete << l[0..-2]}
         end
         rescue IOError
-            p "File error"
+            p "to-add file error"
+            update = false
+        end
+        begin
+            File.open('.jsaw/to-delete'.each_line{|l| delete << l[0..-2]}
+        end
+        rescue
+            p "to-delete file error"
+            delete = false
         end
         # check in files
         new = {}
@@ -69,15 +77,45 @@ class Repository
         new.sort()
         n = @changeset.addchangeset(@manifest.node(rev), new, "commit")
         @current = n
-        # Some sketchy shit
-        # unlink path 
+        self.open("current", "w").write(@current.to_s)
+        File.delete(self.join("to-add")) if update
+        File.delete(self.join("to-delete")) if delete
     end
 
     def dirdiff(path)
-        st = open("dircache").read()
         dc = {}
         pos = 0
-
+        st = open("dircache").readline{|l|
+            split = l.split()
+            dc[split[4]] = split
+        }
+        changed = []
+        added = []
+        for f in os_walk(@root, '.jsaw')[2]
+            stat = File.stat(f)
+            if dc.include? f
+                temp = dc[f]
+                dc.delete[f]
+                if temp[1] != stat.size
+                    changed << f
+                    p "C #{f}"
+                elsif temp[0] != stat.mode or temp[2] != stat.mtime
+                    t1 = File.read(f)
+                    # may not work with path instread of file name 
+                    t2 = self.file(f).revision(@current)
+                    if t1 != t2
+                        changed << f
+                        p "C #{f}"
+                    end
+                end
+            else
+                added << f
+                p "A #{f}"
+            end
+        deleted = dc.keys()
+        deleted.sort()
+        deleted.each{|d| p "D #{d}"}        
+        end
     end
 
     def add(list)
@@ -87,7 +125,7 @@ class Repository
             addlist.write(f+'\n')
             st = File.stat(f)
             e = [st.mode, st.size, st.mtime, f.length, f]
-            e.each{|i| state.write(i)}
+            e.each{|i| state.write(i+' ')}
         end
     end
 

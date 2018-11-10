@@ -14,13 +14,14 @@ def os_walk(dir, ignore)
   [root, dirs, files]
 end
 
-def diff(path)
-  walk = os_walk(Dir.pwd, '.git')
-  for f in walk[2]
-    s = File.stat(f)
-    p s.mtime
-    break
-  end
-end
+# def diff(path)
+#   walk = os_walk(Dir.pwd, '.git')
+#   for f in walk[2]
+#     s = File.stat(f)
+#     p s.mtime
+#     break
+#   end
+# end
 
-diff(Dir.pwd)
+# x = os_walk(Dir.pwd, '.git')
+# p x[1]
