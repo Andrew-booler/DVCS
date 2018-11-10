@@ -3,7 +3,9 @@ require 'fileutils'
 
 NULLID = Digest::SHA1.hexdigest ''
 
+#class of idnode in revlog
 class Revid
+
   def initialize(id_string = '',  p1 = '', p2 = '',nodeid = -1,offset=-1,hashcode=NULLID)
     attr_reader  :offset, :p1, :p2, :nodeid, :hashcode
     para_list=id_string.split(';')
@@ -27,15 +29,18 @@ class Revid
     [@p1,@p2,@nodeid,@offset,@hashcode].inject(){|res,item| res+";"+item }#@size
   end
 
+  #return the parents
   def parents()
     [@p1,@p2]
   end
 
+  #return the hashcode of the node
   def hashcode()
     @hashcode
   end
 end
 
+#node that save the content, please extend it
 class Revnode
   def initialize(content='',recover=false)
     if recover
@@ -50,7 +55,7 @@ class Revnode
   end
 
 
-
+#please overwrite it and call the super function with a string
   def get_content()
     @content
   end
@@ -62,6 +67,10 @@ end
 
 
 class Revlog
+  #indexfile: file to store the index nodes
+  # datafile: file to store the data
+  # create the indexfile and the datafile if they do not exist return an empty Revlog
+  # or restore the Revlog from the files
   def initialize(indexfile, datafile)
     @indexfile = indexfile
     @datafile = datafile
@@ -140,7 +149,6 @@ class Revlog
       self.saveid()
       self.savedata()
     end
-
   end
 
   def saveid()
