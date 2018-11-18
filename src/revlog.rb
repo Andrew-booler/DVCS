@@ -5,9 +5,9 @@ NULLID = Digest::SHA1.hexdigest ''
 
 #class of idnode in revlog
 class Revid
-
-  def initialize(id_string = '',  p1 = '', p2 = '',nodeid = -1,offset=-1,hashcode=NULLID)
     attr_reader  :offset, :p1, :p2, :nodeid, :hashcode
+  def initialize(id_string = '',  p1 = '', p2 = '',nodeid = -1,offset=-1,hashcode=NULLID)
+
     para_list=id_string.split(';')
     if para_list.length==5   then
       #@size=para_list[1]
