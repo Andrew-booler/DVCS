@@ -7,7 +7,7 @@ NULLID = Digest::SHA1.hexdigest ''
 class Revid
     attr_reader  :offset, :p1, :p2, :nodeid, :hashcode
     def initialize(id_string = '',  p1 = '', p2 = '',nodeid = -1,offset=-1,hashcode=NULLID)
-        
+
         para_list=id_string.split(';')
         if para_list.length==5   then
             #@size=para_list[1]
@@ -75,14 +75,14 @@ class Revlog
         @indexfile = indexfile
         @datafile = datafile
 
-        if not File.exist? @indexfile
-            FileUtils.mkdir_p File.dirname @indexfile
-            File.new(@indexfile,"w")
+        if not File.exist? self.join(@indexfile)
+            # FileUtils.mkdir_p File.dirname @indexfile
+            File.new(self.join(@indexfile),"w")
         end
 
-        if not File.exist? @datafile
-            FileUtils.mkdir_p File.dirname @datafile
-            File.new(@datafile,"w")
+        if not File.exist? self.join(@datafile)
+            # FileUtils.mkdir_p File.dirname @datafile
+            File.new(self.join(@datafile),"w")
         end
 
         @index = []
@@ -105,7 +105,12 @@ class Revlog
     end
 
     def open(filename, mode="r")
-        File.open(filename,mode=mode)
+        File.open(".jsaw/"+filename,mode=mode)
+    end
+
+    def join(f)
+        path = Dir.getwd()
+        File.join(path, ".jsaw", f)
     end
 
     #index of the last element in index node list

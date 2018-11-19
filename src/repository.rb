@@ -9,12 +9,12 @@ class Repository
     # path-> path to Repo root
     def initialize(path = nil, create = false)
         # create .jsaw folder with all relevant files if required
-        path = Dir.cwd + "/" if !path
-        @path = path
-        @root = path
+        @path = File.join(Dir.pwd, ".jsaw")
+        @root = Dir.pwd
         if create
-            Dir.mkdir(@path + "jsaw") unless File.exists?(@path + "jsaw")
-            # TODO: make other files
+            Dir.mkdir(@path) unless File.exists?(@path)
+            Dir.mkdir(self.join("data"))
+            Dir.mkdir(self.join("index"))
         end
         # initilize head changeLog and minifest
         @changelog = Changelog.new(self, @path)
@@ -23,7 +23,7 @@ class Repository
 
     # might not work with path instread of just filenames
     def open(path, mode = "r")
-        f = join(path)
+        f = self.join(path)
         if mode == "a" and File.file?(f)
             s = File.stat(f)
             if s.nlink > 1
@@ -35,7 +35,7 @@ class Repository
     end
 
     def join(f)
-        return File.join(Dir.pwd, f)
+        return File.join(@path, f)
     end
 
     def file(f)
@@ -219,7 +219,7 @@ class Repository
 
     def diffdir(path)
         dc = {}
-        st = open("dircache").readline{|l|
+        st = self.open("dircache").readline{|l|
             split = l.split()
             dc[split[4]] = split
         }
@@ -254,19 +254,20 @@ class Repository
     end
 
     def add(list)
-        addlist = open('to-add', 'a')
-        state = open('dircache', 'a')
+        addlist = self.open('to-add', 'a')
+        state = self.open('dircache', 'a')
         for f in list
-            addlist.write(f+'\n')
+            addlist.write(f + "\n")
             st = File.stat(f)
             e = [st.mode, st.size, st.mtime, f.length, f]
-            e.each{|i| state.write(i+' ')}
+            e.each{|i| state.write("#{i} ")}
+            state.write("\n")
         end
     end
 
     def delete(list)
-        delList = open('to-delete', 'a')
-        list.each{|f| delList.write(f+'\n')}
+        delList = self.open('to-delete', 'a')
+        list.each{|f| delList.write(f + "\n")}
     end
 
 end

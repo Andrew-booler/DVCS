@@ -1,6 +1,3 @@
 .DS_Store
 .idea/
-00changelog.d
-00changelog.i
-00manifest.d
-00manifest.i
+.jsaw/
