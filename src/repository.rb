@@ -1,5 +1,6 @@
 require_relative 'changelog'
 require_relative 'manifest'
+require_relative 'filelog'
 require 'pathname'
 
 class Repository
@@ -60,9 +61,9 @@ class Repository
         # check in files
         new = {}
         for f in update
-            r = filelog(self, f)
-            t = file(f).read()
-            r.addrevision(t)
+            r = Filelog.new(self, f)
+            t = File.open(f).read()
+            r.add_revision(t)
             new[f] = r.node(r.tip())
         end
         # update manifest
