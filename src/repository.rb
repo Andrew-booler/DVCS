@@ -1,7 +1,10 @@
 require_relative 'changelog'
-require_relative 'helpers'
+require_relative 'manifest'
+require 'pathname'
 
 class Repository
+    attr_accessor :path, :root, :changelog, :manifest 
+
     @path = ''
     # constructor
     # path-> path to Repo root
@@ -15,12 +18,12 @@ class Repository
             # TODO: make other files
         end
         # initilize head changeLog and minifest
-        @changelog = ChangeLog.new(self, @path)
+        @changelog = Changelog.new(self, @path)
         @manifest = Manifest.new(self, @path)
         # fileLogs???
     end
 
-    # might not work with path instread of just filenames 
+    # might not work with path instread of just filenames
     def open(path, mode = "r")
         f = join(path)
         if mode == "a" and File.file?(f)
@@ -114,10 +117,10 @@ class Repository
         self.open("current", "w").write(self.current.to_s)
     end
 
-    def merge(other):
+    def merge(other)
         changed = {}
         n = {}
-        def accumulate(text):
+        def accumulate(text)
             files = self.changelog.extract(text)[3]
             files.each{|f|
                 print " #{f} changed"
@@ -202,7 +205,21 @@ class Repository
         self.changelog.addchangeset(node, n, "merge", co, cn)
     end
 
-    def dirdiff(path)
+    def os_walk(dir, ignore)
+      root = Pathname(dir)
+          files, dirs = [], []
+          Pathname(root).find do |path|
+            unless path == root
+                if !path.to_s.include? ignore
+                  dirs << path if path.directory?
+                  files << path if path.file?
+              end
+          end
+      end
+      [root, dirs, files]
+    end
+
+    def diffdir(path)
         dc = {}
         st = open("dircache").readline{|l|
             split = l.split()
@@ -220,7 +237,7 @@ class Repository
                     p "C #{f}"
                 elsif temp[0] != stat.mode or temp[2] != stat.mtime
                     t1 = File.read(f)
-                    # may not work with path instread of file name 
+                    # may not work with path instread of file name
                     t2 = self.file(f).revision(@current)
                     if t1 != t2
                         changed << f
@@ -234,8 +251,8 @@ class Repository
         end
         deleted = dc.keys()
         deleted.sort()
-        deleted.each{|d| p "D #{d}"}        
-        
+        deleted.each{|d| p "D #{d}"}
+
     end
 
     def add(list)

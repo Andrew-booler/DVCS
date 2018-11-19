@@ -1,3 +1,4 @@
+require_relative "revlog"
 
 # class changelog(revlog):
 #     def __init__(self, repo):
@@ -18,7 +19,7 @@
 
 #     def changeset(self, rev):
 #         return self.extract(self.revision(rev))
-        
+
 #     def addchangeset(self, manifest, list, desc, p1=None, p2=None):
 #         try: user = os.environ["HGUSER"]
 #         except: user = os.environ["LOGNAME"] + '@' + socket.getfqdn()
@@ -55,5 +56,3 @@ class Changelog < Revlog
 
     end
 end
-
-
