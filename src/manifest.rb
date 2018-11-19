@@ -3,16 +3,16 @@ require 'digest'
 
 class Manifest < Revlog
     def initialize(repo,path)
-        self.repo = repo
+        @repo = repo
         Revlog.new("00manifest.i", "00manifest.d")
     end
 
     def open(file, mode = "r")
-        return self.repo.open(file, mode)
+        return @repo.open(file, mode)
     end
 
     def manifest(rev)
-        text = self.revision(rev)    
+        text = self.revision(rev)
         hash = {}
         text.lines.each do |line|
             name,name_hash = line.split(" ")
