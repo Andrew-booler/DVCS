@@ -18,7 +18,7 @@ class Repository
             # TODO: make other files
         end
         # initilize head changeLog and minifest
-        # @changelog = Changelog.new(self, @path)
+        @changelog = Changelog.new(self, @path)
         @manifest = Manifest.new(self, @path)
         # fileLogs???
 
@@ -118,93 +118,93 @@ class Repository
         self.open("current", "w").write(self.current.to_s)
     end
 
-    # def merge(other):
-    #     changed = {}
-    #     n = {}
-    #     def accumulate(text):
-    #         files = self.changelog.extract(text)[3]
-    #         files.each{|f|
-    #             print " #{f} changed"
-    #             changed[f] = 1
-    #         }
-    #     end
-    #     # begin merge of changesets
-    #     print "begining changeset merge"
-    #     co_cn = self.changelog,mergedag(other.changelog, accumulate)
-    #     co = co_cn[0]
-    #     cn = co_cn[1]
-    #     return if co_cn[0] == co_cn[1]
+    def merge(other):
+        changed = {}
+        n = {}
+        def accumulate(text):
+            files = self.changelog.extract(text)[3]
+            files.each{|f|
+                print " #{f} changed"
+                changed[f] = 1
+            }
+        end
+        # begin merge of changesets
+        print "begining changeset merge"
+        co_cn = self.changelog,mergedag(other.changelog, accumulate)
+        co = co_cn[0]
+        cn = co_cn[1]
+        return if co_cn[0] == co_cn[1]
 
-    #     # merge all files changed by the chnageset,
-    #     # keeping track of the new tips
-    #     changed = chnaged.keys()
-    #     changed.sort()
-    #     changed.each{|f|
-    #         print "merging #{f}"
-    #         f1 = filelog(self, f)
-    #         f2 = filelog(other, f)
-    #         rev = f1.merge(f2)
-    #         n[f] = f1.node(rev) if rev
-    #     }
+        # merge all files changed by the chnageset,
+        # keeping track of the new tips
+        changed = chnaged.keys()
+        changed.sort()
+        changed.each{|f|
+            print "merging #{f}"
+            f1 = filelog(self, f)
+            f2 = filelog(other, f)
+            rev = f1.merge(f2)
+            n[f] = f1.node(rev) if rev
+        }
 
-    #     # begin merge of manifest
-    #     print "merging manifest"
-    #     mm_mo = self.manifest.mergedag(other.manifest)
-    #     mm = mm_mo[0]
-    #     mo = mm_mo[1]
-    #     ma = self.manifest.ancestor(mm,mo)
+        # begin merge of manifest
+        print "merging manifest"
+        mm_mo = self.manifest.mergedag(other.manifest)
+        mm = mm_mo[0]
+        mo = mm_mo[1]
+        ma = self.manifest.ancestor(mm,mo)
 
-    #     # resolve the manifest to point to all the merged files
-    #     print "resolving manifest"
-    #     mmap = self.manifest.manifest(mm)
-    #     omap = self.manifest.manifest(mo)
-    #     amap = self.manifest.manifest(ma)
-    #     nmap = {}
-    #     mmap.each{|f, mid|
-    #         if omap.key?(f)
-    #             if mid != omap[f]
-    #                 nmap[f] = n.fetch(f, mid)
-    #             else
-    #                 nmap[f] = n.fetch(f, mid)
-    #             end
-    #             omap.delete(f)
-    #         elsif amap.key?(f)
-    #             if mid != amap[f]
-    #                 next
-    #             else
-    #                 next
-    #             end
-    #         else
-    #             nmap[f] = n.fetch(f, mid)
-    #         end
-    #     }
-    #     # del mmap??
-    #     mmap = nil
-    #     omap.each{|f, oid|
-    #         if amap.key?(f)
-    #             if oid != amap[f]
-    #                 next
-    #             else
-    #                 next
-    #             end
-    #         else
-    #             nmap[f] = n.fetch(f,mid)
-    #         end
-    #     }
-    #     # del again..
-    #     omap = nil
-    #     amap = nil
+        # resolve the manifest to point to all the merged files
+        print "resolving manifest"
+        mmap = self.manifest.manifest(mm)
+        omap = self.manifest.manifest(mo)
+        amap = self.manifest.manifest(ma)
+        nmap = {}
+        mmap.each{|f, mid|
+            if omap.key?(f)
+                if mid != omap[f]
+                    nmap[f] = n.fetch(f, mid)
+                else
+                    nmap[f] = n.fetch(f, mid)
+                end
+                omap.delete(f)
+            elsif amap.key?(f)
+                if mid != amap[f]
+                    next
+                else
+                    next
+                end
+            else
+                nmap[f] = n.fetch(f, mid)
+            end
+        }
+        # del mmap??
+        mmap = nil
+        omap.each{|f, oid|
+            if amap.key?(f)
+                if oid != amap[f]
+                    next
+                else
+                    next
+                end
+            else
+                nmap[f] = n.fetch(f,mid)
+            end
+        }
+        # del again..
+        omap = nil
+        amap = nil
 
-    #     nm = self.manifest.addmanifest(nmap, mm, mo)
-    #     node = self.manifest.node(nm)
-    #     # Now all files and manifests are merged, we add the changed files
-    #     # and manifest id to the changelog
-    #     print "comitting merge changeset"
-    #     n = n.keys()
-    #     n.sort()
-    #     cn = -1 if co == cn
-    #     self.changelog.addchangeset(node, n, "merge", co, cn)
-    # end
+        nm = self.manifest.addmanifest(nmap, mm, mo)
+        node = self.manifest.node(nm)
+        # Now all files and manifests are merged, we add the changed files
+        # and manifest id to the changelog
+        print "comitting merge changeset"
+        n = n.keys()
+        n.sort()
+        cn = -1 if co == cn
+        self.changelog.addchangeset(node, n, "merge", co, cn)
+    end
 
     def dirdiff(path)
         dc = {}
