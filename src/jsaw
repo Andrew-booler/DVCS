@@ -47,7 +47,7 @@ when "cat"
     # TODO
 # commit staged changes -> create new revision
 when "commit"
-    repo.commit()
+    repo.commit(args[0])
 # print the changelog (i.e. revision history)
 when "log"
     repo.changelog.top.times do |i|

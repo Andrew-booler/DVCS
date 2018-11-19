@@ -3,16 +3,11 @@ require 'digest'
 require_relative 'revlog.rb'
 
 class Manifest < Revlog
-    def initialize(repo,path)
+    def initialize(repo, path)
         index_file = File.join(path, "00manifest.i")
         data_file = File.join(path, "00manifest.d")
         super(index_file, data_file)
-        # @repo = repo
     end
-
-    # def open(file, mode = "r")
-    #     return @repo.open(file, mode)
-    # end
 
     def manifest(rev)
         text = self.revision(rev).get_content()

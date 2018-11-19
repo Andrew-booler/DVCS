@@ -13,8 +13,8 @@ class Repository
         @root = Dir.pwd
         if create
             Dir.mkdir(@path) unless File.exists?(@path)
-            Dir.mkdir(self.join("data"))
-            Dir.mkdir(self.join("index"))
+            Dir.mkdir(self.join("data")) unless File.exists?(self.join("data"))
+            Dir.mkdir(self.join("index")) unless File.exists?(self.join("index"))
         end
         # initilize head changeLog and minifest
         @changelog = Changelog.new(self, @path)
