@@ -26,7 +26,7 @@ class Revid
   end
 
   def tostring()
-    [@p1,@p2,@nodeid,@offset,@hashcode].inject(){|res,item| res+";"+item }#@size
+    [@p1,@p2,@nodeid,@offset,@hashcode].inject(){|res,item| res.to_s+";"+item.to_s }#@size
   end
 
   #return the parents
@@ -71,6 +71,7 @@ class Revlog
   # datafile: file to store the data
   # create the indexfile and the datafile if they do not exist return an empty Revlog
   # or restore the Revlog from the files
+  attr_reader :index
   def initialize(indexfile, datafile)
     @indexfile = indexfile
     @datafile = datafile
@@ -86,6 +87,8 @@ class Revlog
     end
 
     @index = []
+    # p "index init"
+    # p @index
     @nodemap = {-1 => NULLID, NULLID => -1}
     @dataset = []
     n = 0
@@ -96,6 +99,8 @@ class Revlog
       @index<< node
       n+=1
     end
+    p @index
+    # p @index
 
     self.open(@datafile).each_line do |line|
       line = line.strip
@@ -104,7 +109,10 @@ class Revlog
     self
   end
 
-  def open(filename, mode="r") File.open(filename,mode=mode) end
+  def open(filename, mode="r") 
+    p filename 
+    File.open(filename,mode=mode) 
+  end
 
   #index of the last element in index node list
   def top() @index.length-1  end
@@ -115,7 +123,7 @@ class Revlog
   #using the offset of the idnode to get the node
   def node(idx)
     if idx<0
-      nil
+      Revid.new()
     else
       @index[idx]
     end
@@ -127,7 +135,14 @@ class Revlog
   end
 
   #using the idnode to find the revnode
-  def revision(idnode) @dataset[idnode.offset] end
+  def revision(idnode) 
+    if idnode.offset > -1
+      @dataset[idnode.offset]
+    else
+      Revnode.new()
+    end
+  end
+
 
   #add a revision,
   # revnode: a revnode
@@ -144,25 +159,32 @@ class Revlog
       @dataset<<revnode
       idxnode = Revid.new('',p1,p2,self.top+1,self.datatop,revnode.hashcode)
       @index<<idxnode
-      @roadmap[idxnode.nodeid]=self.top
-
+      
+      @nodemap[idxnode.nodeid]=self.top
       self.saveid()
       self.savedata()
     end
   end
 
   def saveid()
-    self.open(@indexfile,'w') do |file|
-      @index.each do |idnode|
-        file.write(idnode.tostring+'\n')
-      end
+    # p self.open(@indexfile,'w')
+    file = self.open(@indexfile,'w')
+    @index.each do |idnode|
+      p 111
+      file.write(idnode.tostring)
+      file.write "\n"
     end
+    # self.open(@indexfile,'w') do |file|
+    #   @index.each do |idnode|
+    #     file.write(idnode.tostring+'\n')
+    #   end
+    # end
   end
 
   def savedata()
     self.open(@datafile,'w') do |file|
       @dataset.each do |datanode|
-        file.write(datanode.tostring+'\n')
+        file.write(datanode.tostring+"\n")
       end
     end
   end

@@ -1,17 +1,18 @@
 # filelog.rb created by Mingyang 11.4.18
 require 'digest'
+require_relative 'revlog.rb'
 
 class Filelog < Revlog
     def initialize(repo,path)
-        # # self.repo = repo
+        @repo = repo
         sha1 = Digest::SHA1.new
         dir = sha1.update(path).hexdigest()
         
         index_dir = File.join(dir, "index")
         data_dir = File.join(dir, "data")
         
-        p index_dir
-        p data_dir
+        # p index_dir
+        # p data_dir
         
         Revlog.new(index_dir, data_dir)
     end
