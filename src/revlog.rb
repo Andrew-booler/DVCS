@@ -5,8 +5,8 @@ NULLID = Digest::SHA1.hexdigest ''
 
 #class of idnode in revlog
 class Revid
-    attr_reader  :offset, :p1, :p2, :nodeid, :hashcode
-  def initialize(id_string = '',  p1 = '', p2 = '',nodeid = -1,offset=-1,hashcode=NULLID)
+    attr_reader  :offset, :p1, :p2, :nodeid
+  def initialize(id_string = '',  p1 = '', p2 = '',nodeid = NULLID,offset=-1)
 
     para_list=id_string.split(';')
     if para_list.length==5   then
@@ -15,13 +15,13 @@ class Revid
       @p2=para_list[1]
       @nodeid=para_list[2]
       @offset=para_list[3]
-      @hashcode=para_list[4]
+
     else
       @nodeid = nodeid
       @p1 = p1
       @p2 = p2
       @offset = offset
-      @hashcode = hashcode
+
     end
   end
 
@@ -34,10 +34,6 @@ class Revid
     [@p1,@p2]
   end
 
-  #return the hashcode of the node
-  def hashcode()
-    @hashcode
-  end
 end
 
 #node that save the content, please extend it
@@ -87,17 +83,16 @@ class Revlog
     end
 
     @index = []
-    # p "index init"
-    # p @index
-    @nodemap = {-1 => NULLID, NULLID => -1}
+
+    @nodemap = {Revid.new() => NULLID, NULLID => Revid.new()}
+
     @dataset = []
-    n = 0
     self.open(@indexfile).each_line do |line|
       line = line.strip
       node = Revid.new(line)
-      @nodemap[node.nodeid] = n
+      @nodemap[node.nodeid] = node
       @index<< node
-      n+=1
+
     end
     p @index
     # p @index
@@ -130,8 +125,8 @@ class Revlog
   end
 
   #using the hashcode of the idnode to get the node
-  def rev_seq(hashcode)
-    @nodemap[hashcode]
+  def rev_seq(id)
+    @nodemap[id]
   end
 
   #using the idnode to find the revnode
@@ -151,13 +146,13 @@ class Revlog
   def add_revision(revnode,p1=nil,p2=nil)
     if revnode.kind_of?(Revnode)
       if p1 == nil
-        p1 = self.node(self.top).hashcode
+        p1 = self.node(self.top).nodeid
       end
       if p2 == nil
-        p2 = -1
+        p2 = NULLID
       end
       @dataset<<revnode
-      idxnode = Revid.new('',p1,p2,self.top+1,self.datatop,revnode.hashcode)
+      idxnode = Revid.new('',p1,p2,revnode.hashcode,self.datatop)
       @index<<idxnode
       
       @nodemap[idxnode.nodeid]=self.top
