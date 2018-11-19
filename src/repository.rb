@@ -66,7 +66,7 @@ class Repository
             new[f] = r.node(r.tip())
         end
         # update manifest
-        old = @manifest.manifest(@manifest.tip())
+        old = @manifest.manifest(@manifest.top())
         old.update(new)
         delete.each{|f| old.delete(f) }
         rev = @manifest.addmanifest(old)
