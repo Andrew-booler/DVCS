@@ -1,5 +1,4 @@
-#!/usr/bin/env ruby
-require_relative 'revlog.rb'
+require_relative "revlog"
 
 class Changelog < Revlog
     def initialize(repo,path)
@@ -32,5 +31,3 @@ class Changelog < Revlog
         return self.addrevision(text, p1, p2)
     end
 end
-
-

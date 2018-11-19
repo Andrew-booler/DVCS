@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+require_relative "repository"
 
 # exit if script called with no arguments
 exit if ARGV.length == 0
@@ -10,13 +11,11 @@ args = ARGV[1..ARGV.length]
 
 # creates an empty repository
 if cmd == "init"
-    # TODO: create new repo if none exits
+    repo = Repository.new("", true)
     exit
+else
+    repo = Repository.new()
 end
-
-# TODO: build repo from exisiting files
-# to be used in commands below
-# applies if not init
 
 # TODO: Do we need a branch command?
 
@@ -25,13 +24,13 @@ case cmd
 # maybe starts with simple single file additions
 # and then add ability to accept patterns
 when "add"
-    # TODO
+    repo.add(args)
 # remove specific files from tracking list
 when "remove"
-    # TODO
+    repo.delete(args)
 # check the status of the current repo compared to the head
 when "status"
-    # TODO
+    repo.diffdir(repo.root)
 # print out the current heads
 when "heads"
     # TODO
@@ -40,19 +39,32 @@ when "diff"
     # TODO
 # switch to a specific revision in history
 when "checkout"
-    # TODO
+    rev = repo.changelog.top()
+    rev = int(args[0]) unless args.empty?
+    repo.checkout(rev)
 # output a file version from a given revision
 when "cat"
     # TODO
 # commit staged changes -> create new revision
 when "commit"
-    # TODO
+    repo.commit()
 # print the changelog (i.e. revision history)
 when "log"
-    # TODO
+    repo.changelog.top.times do |i|
+        changes = repo.changelog.changeset(i)
+        p1, p2 = repo.changelog.parents(i)
+        print "#{i}: #{p1} #{p2} #{repo.changelog.node(i)}"
+        print "manifest nodeid:", changes[0]
+        print "user:", changes[1]
+        print "changed files:"
+        changes[3].each {|f| print "", f }
+        print "description:"
+        print changes[4]
+    end
 # merge two revisions
 when "merge"
-    # TODO
+    other = Repository.new(args[0])
+    repo.merge(other)
 # pull the changes from another repository
 when "pull"
     # TODO
@@ -60,8 +72,7 @@ when "pull"
 when "push"
     # TODO
 when "help"
-    # TODO
-    puts "Here is some help"
+    puts "TODO: Here is some help"
 else
     puts "jsaw: '#{cmd}' is not a valid command. See 'jsaw help'."
 end

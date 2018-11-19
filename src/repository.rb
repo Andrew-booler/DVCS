@@ -1,32 +1,29 @@
 require_relative 'changelog'
-require_relative 'helpers'
-require_relative 'manifest.rb'
-require_relative 'revlog.rb'
+require_relative 'manifest'
+require 'pathname'
 
 class Repository
-    @path = ''
-    attr_accessor :manifest
+    attr_accessor :path, :root, :changelog, :manifest
+
     # constructor
     # path-> path to Repo root
     def initialize(path = nil, create = false)
         # create .jsaw folder with all relevant files if required
-        path = Dir.pwd + "/" if !path
-        @path = path
-        @root = path
+        @path = File.join(Dir.pwd, ".jsaw")
+        @root = Dir.pwd
         if create
-            Dir.mkdir(@path+".jsaw")
-            # TODO: make other files
+            Dir.mkdir(@path) unless File.exists?(@path)
+            Dir.mkdir(self.join("data"))
+            Dir.mkdir(self.join("index"))
         end
         # initilize head changeLog and minifest
         @changelog = Changelog.new(self, @path)
         @manifest = Manifest.new(self, @path)
-        # fileLogs???
-
     end
 
-    # might not work with path instread of just filenames 
+    # might not work with path instread of just filenames
     def open(path, mode = "r")
-        f = join(path)
+        f = self.join(path)
         if mode == "a" and File.file?(f)
             s = File.stat(f)
             if s.nlink > 1
@@ -38,7 +35,7 @@ class Repository
     end
 
     def join(f)
-        return File.join(Dir.pwd, f)
+        return File.join(@path, f)
     end
 
     def file(f)
@@ -118,10 +115,10 @@ class Repository
         self.open("current", "w").write(self.current.to_s)
     end
 
-    def merge(other):
+    def merge(other)
         changed = {}
         n = {}
-        def accumulate(text):
+        def accumulate(text)
             files = self.changelog.extract(text)[3]
             files.each{|f|
                 print " #{f} changed"
@@ -206,9 +203,23 @@ class Repository
         self.changelog.addchangeset(node, n, "merge", co, cn)
     end
 
-    def dirdiff(path)
+    def os_walk(dir, ignore)
+      root = Pathname(dir)
+          files, dirs = [], []
+          Pathname(root).find do |path|
+            unless path == root
+                if !path.to_s.include? ignore
+                  dirs << path if path.directory?
+                  files << path if path.file?
+              end
+          end
+      end
+      [root, dirs, files]
+    end
+
+    def diffdir(path)
         dc = {}
-        st = open("dircache").readline{|l|
+        st = self.open("dircache").readline{|l|
             split = l.split()
             dc[split[4]] = split
         }
@@ -224,7 +235,7 @@ class Repository
                     p "C #{f}"
                 elsif temp[0] != stat.mode or temp[2] != stat.mtime
                     t1 = File.read(f)
-                    # may not work with path instread of file name 
+                    # may not work with path instread of file name
                     t2 = self.file(f).revision(@current)
                     if t1 != t2
                         changed << f
@@ -238,24 +249,25 @@ class Repository
         end
         deleted = dc.keys()
         deleted.sort()
-        deleted.each{|d| p "D #{d}"}        
-        
+        deleted.each{|d| p "D #{d}"}
+
     end
 
     def add(list)
-        addlist = open('to-add', 'a')
-        state = open('dircache', 'a')
+        addlist = self.open('to-add', 'a')
+        state = self.open('dircache', 'a')
         for f in list
-            addlist.write(f+'\n')
+            addlist.write(f + "\n")
             st = File.stat(f)
             e = [st.mode, st.size, st.mtime, f.length, f]
-            e.each{|i| state.write(i+' ')}
+            e.each{|i| state.write("#{i} ")}
+            state.write("\n")
         end
     end
 
     def delete(list)
-        delList = open('to-delete', 'a')
-        list.each{|f| delList.write(f+'\n')}
+        delList = self.open('to-delete', 'a')
+        list.each{|f| delList.write(f + "\n")}
     end
 
 end
