@@ -3,24 +3,22 @@ require_relative 'manifest'
 require 'pathname'
 
 class Repository
-    attr_accessor :path, :root, :changelog, :manifest 
+    attr_accessor :path, :root, :changelog, :manifest
 
-    @path = ''
     # constructor
     # path-> path to Repo root
     def initialize(path = nil, create = false)
         # create .jsaw folder with all relevant files if required
-        path = Dir.pwd + "/" if !path
+        path = Dir.cwd + "/" if !path
         @path = path
         @root = path
         if create
-            Dir.mkdir(@path+".jsaw")
+            Dir.mkdir(@path + "jsaw") unless File.exists?(@path + "jsaw")
             # TODO: make other files
         end
         # initilize head changeLog and minifest
         @changelog = Changelog.new(self, @path)
         @manifest = Manifest.new(self, @path)
-        # fileLogs???
     end
 
     # might not work with path instread of just filenames
