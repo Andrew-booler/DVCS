@@ -84,17 +84,17 @@ class Revlog
 
     @index = []
 
-    @nodemap = {Revid.new() => NULLID, NULLID => Revid.new()}
+    @nodemap = { NULLID => Revid.new()}
 
     @dataset = []
     self.open(@indexfile).each_line do |line|
       line = line.strip
       node = Revid.new(line)
       @nodemap[node.nodeid] = node
-      @index<< node
+      @index<< node.nodeid
 
     end
-    p @index
+    # p @index
     # p @index
 
     self.open(@datafile).each_line do |line|
@@ -105,29 +105,29 @@ class Revlog
   end
 
   def open(filename, mode="r") 
-    p filename 
+    # p filename 
     File.open(filename,mode=mode) 
   end
 
   #index of the last element in index node list
-  def top() @index.length-1  end
+  def top() @index[-1]  end
 
   #index of the last element in revnode list
   def datatop() @dataset.length-1 end
 
   #using the offset of the idnode to get the node
   def node(idx)
-    if idx<0
-      Revid.new()
+    if not @nodemap.keys.include?(idx)
+      @nodemap[NULLID]
     else
-      @index[idx]
+      @nodemap[idx]
     end
   end
 
   #using the hashcode of the idnode to get the node
-  def rev_seq(id)
-    @nodemap[id]
-  end
+  # def rev_seq(id)
+  #   @nodemap[id]
+  # end
 
   #using the idnode to find the revnode
   def revision(idnode) 
@@ -153,9 +153,9 @@ class Revlog
       end
       @dataset<<revnode
       idxnode = Revid.new('',p1,p2,revnode.hashcode,self.datatop)
-      @index<<idxnode
+      @index<<idxnode.nodeid
       
-      @nodemap[idxnode.nodeid]=self.top
+      @nodemap[idxnode.nodeid]=idxnode
       self.saveid()
       self.savedata()
     end
@@ -163,11 +163,16 @@ class Revlog
 
   def saveid()
     # p self.open(@indexfile,'w')
+    # p @nodemap
     file = self.open(@indexfile,'w')
-    @index.each do |idnode|
-      p 111
-      file.write(idnode.tostring)
-      file.write "\n"
+    # p @index
+    @index.each do |id|
+      if id != NULLID
+        # p @nodemap[id]
+        file.write(@nodemap[id].tostring)
+        file.write "\n" 
+      end
+
     end
     # self.open(@indexfile,'w') do |file|
     #   @index.each do |idnode|
