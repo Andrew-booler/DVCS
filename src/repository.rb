@@ -60,22 +60,26 @@ class Repository
             p "to-delete file error"
         end
         # check in files
-        new = {}
+        new_thing = {}
         for f in update
             r = Filelog.new(self, @path, f)
             t = File.open(f).read()
             r.add_revision(Revnode.new(t))
-            new[f] = r.node(r.top())
+            new_thing[f] = r.node(r.top())
         end
         # update manifest
-        old = @manifest.manifest(@manifest.top())
-        old.update(new)
+        old = @manifest.manifest(@manifest.node(@manifest.top()))
+        old.update(new_thing)
         delete.each { |f| old.delete(f) }
         rev = @manifest.add_manifest(old)
         # add changeset
-        new = new.keys()
-        new.sort()
-        n = @changelog.add_changeset(@manifest.node(rev), new, "commit")
+        new_thing = new_thing.keys()
+        new_thing.sort()
+        
+        # p @changelog.extract("vhj")
+        # p @manifest.node(rev)
+        # p 1 if @changelog != Changelog::None
+        @changelog.add_changeset(@manifest.node(rev), new_thing, "commit")
         @current = n
         self.open("current", "w").write(@current.to_s)
         File.delete(self.join("to-add")) unless update.empty?

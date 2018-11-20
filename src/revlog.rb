@@ -7,20 +7,20 @@ NULLID = Digest::SHA1.hexdigest ''
 class Revid
     attr_reader  :offset, :p1, :p2, :nodeid
 
-    def initialize(id_string = '',  p1 = '', p2 = '',nodeid = -1,offset=-1)
+    def initialize(id_string = '',  p1 = '', p2 = '',nodeid = NULLID,offset=-1)
 
         para_list = id_string.split(';')
-        if para_list.length == 5
+        if para_list.length == 4
             #@size=para_list[1]
             @p1=para_list[0]
             @p2=para_list[1]
             @nodeid=para_list[2]
-            @offset=para_list[3]
+            @offset=para_list[3].to_i
         else
             @nodeid = nodeid
             @p1 = p1
             @p2 = p2
-            @offset = offset
+            @offset = offset.to_i
         end
     end
 

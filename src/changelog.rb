@@ -2,13 +2,13 @@ require_relative "revlog"
 
 class Changelog < Revlog
     def initialize(repo, path)
-        index_file = File.join(path, "00changelog.i")
-        data_file = File.join(path, "00changelog.d")
-        super(index_file, data_file)
+        index_f = File.join(path, "00changelog.i")
+        data_f = File.join(path, "00changelog.d")
+        super(index_f, data_f)
     end
 
     def extract(text)
-
+        p 1234
     end
 
     def changeset(rev)
