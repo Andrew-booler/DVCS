@@ -9,8 +9,8 @@ class Revid
 
     def initialize(id_string = '',  p1 = '', p2 = '',nodeid = -1,offset=-1)
 
-        para_list=id_string.split(';')
-        if para_list.length==5   then
+        para_list = id_string.split(';')
+        if para_list.length == 5
             #@size=para_list[1]
             @p1=para_list[0]
             @p2=para_list[1]
@@ -25,7 +25,7 @@ class Revid
     end
 
     def tostring()
-        [@p1,@p2,@nodeid,@offset,@hashcode].inject("") { |res,item| res += ";" + item.to_s }#@size
+        [@p1,@p2,@nodeid,@offset,@hashcode].join(";")
     end
 
     #return the parents
@@ -157,27 +157,19 @@ class Revlog
     end
 
     def saveid()
-        # p self.open(@indexfile,'w')
-        # p @nodemap
-        file = self.open(@indexfile,'w')
-        # p @index
-        @index.each do |id|
-            if id != NULLID
-                # p @nodemap[id]
-                file.write(@nodemap[id].tostring)
-                file.write "\n"
+        File.open(@indexfile,'w') do |file|
+            @index.each do |id|
+                if id != NULLID
+                    # p @nodemap[id]
+                    file.write(@nodemap[id].tostring)
+                    file.write "\n"
+                end
             end
-
         end
-        # self.open(@indexfile,'w') do |file|
-        #   @index.each do |idnode|
-        #     file.write(idnode.tostring+'\n')
-        #   end
-        # end
     end
 
     def savedata()
-        self.open(@datafile,'w') do |file|
+        File.open(@datafile,'w') do |file|
             @dataset.each do |datanode|
                 file.write(datanode.tostring+"\n")
             end

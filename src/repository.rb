@@ -63,13 +63,13 @@ class Repository
         for f in update
             r = Filelog.new(self, @path, f)
             t = File.open(f).read()
-            r.add_revision(t)
+            r.add_revision(Revnode.new(t))
             new[f] = r.node(r.top())
         end
         # update manifest
         old = @manifest.manifest(@manifest.top())
         old.update(new)
-        # delete.each { |f| old.delete(f) }
+        delete.each { |f| old.delete(f) }
         rev = @manifest.add_manifest(old)
         # add changeset
         new = new.keys()
