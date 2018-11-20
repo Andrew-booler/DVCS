@@ -79,7 +79,7 @@ class Repository
         # p @changelog.extract("vhj")
         # p @manifest.node(rev)
         # p 1 if @changelog != Changelog::None
-        @changelog.add_changeset(@manifest.node(rev), new_thing, "commit")
+        n = @changelog.add_changeset(@manifest.node(rev), new_thing, "commit")
         @current = n
         self.open("current", "w").write(@current.to_s)
         File.delete(self.join("to-add")) unless update.empty?

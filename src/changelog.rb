@@ -15,13 +15,13 @@ class Changelog < Revlog
         return self.extract(self.revision(rev))
     end
 
-    def add_changeset(manifest, list, desc, p1=None, p2=None)
+    def add_changeset(manifest, list, desc, p1=nil, p2=nil)
         user = ENV['USER']
         list = list.sort
         time = Time.new
         date = time.inspect + " " + time.zone
         arr = [manifest, user, date]  + list + ["", desc]
         text = arr.join("\n")
-        return self.addrevision(text, p1, p2)
+        return self.add_revision(text, p1, p2)
     end
 end
