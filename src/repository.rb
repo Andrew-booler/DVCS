@@ -72,7 +72,7 @@ class Repository
         # add changeset
         new = new.keys()
         new.sort()
-        n = @changeset.add_changeset(@manifest.node(rev), new, "commit")
+        n = @changelog.add_changeset(@manifest.node(rev), new, "commit")
         @current = n
         self.open("current", "w").write(@current.to_s)
         File.delete(self.join("to-add")) unless update.empty?
