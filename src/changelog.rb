@@ -22,6 +22,6 @@ class Changelog < Revlog
         date = time.inspect + " " + time.zone
         arr = [manifest, user, date]  + list + ["", desc]
         text = arr.join("\n")
-        return self.add_revision(text, p1, p2)
+        return self.add_revision(Revnode.new(text), p1, p2)
     end
 end
