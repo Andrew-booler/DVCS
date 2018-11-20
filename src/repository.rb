@@ -50,13 +50,11 @@ class Repository
             File.open('.jsaw/to-add').each_line{|l| update << l[0..-2]}
         rescue IOError
             p "to-add file error"
-            update = false
         end
         begin
             File.open('.jsaw/to-delete').each_line{|l| delete << l[0..-2]}
         rescue
             p "to-delete file error"
-            delete = false
         end
         # check in files
         new = {}
@@ -77,8 +75,8 @@ class Repository
         n = @changeset.add_changeset(@manifest.node(rev), new, "commit")
         @current = n
         self.open("current", "w").write(@current.to_s)
-        File.delete(self.join("to-add")) if update
-        File.delete(self.join("to-delete")) if delete
+        File.delete(self.join("to-add")) unless update.empty?
+        File.delete(self.join("to-delete")) unless delete.empty?
     end
 
     def checkdir(path)
