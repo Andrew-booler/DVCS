@@ -3,18 +3,14 @@ require 'digest'
 require_relative 'revlog.rb'
 
 class Filelog < Revlog
-    def initialize(repo,path)
+    def initialize(repo, path, filename)
         @repo = repo
         sha1 = Digest::SHA1.new
-        dir = sha1.update(path).hexdigest()
-        
-        index_dir = File.join(dir, "index")
-        data_dir = File.join(dir, "data")
-        
-        # p index_dir
-        # p data_dir
-        
-        Revlog.new(index_dir, data_dir)
+        hex = sha1.update(filename).hexdigest()
+
+        index = File.join(path, "index", hex)
+        data = File.join(path, "data", hex)
+        super(index, data)
     end
 
     def open(file, mode = "r")
@@ -22,5 +18,3 @@ class Filelog < Revlog
         # return self.repo.open(file, mode)
     end
 end
-
-Filelog.new(repo = 6,"/Users/jiao/Desktop/DVCS")

@@ -40,7 +40,7 @@ class Repository
     end
 
     def file(f)
-        return filelog(self, f)
+        return Filelog.new(self, @path, f)
     end
     # commit method
     def commit(message)
@@ -61,20 +61,20 @@ class Repository
         # check in files
         new = {}
         for f in update
-            r = Filelog.new(self, f)
+            r = Filelog.new(self, @path, f)
             t = File.open(f).read()
             r.add_revision(t)
-            new[f] = r.node(r.tip())
+            new[f] = r.node(r.top())
         end
         # update manifest
         old = @manifest.manifest(@manifest.top())
         old.update(new)
-        delete.each{|f| old.delete(f) }
-        rev = @manifest.addmanifest(old)
+        # delete.each { |f| old.delete(f) }
+        rev = @manifest.add_manifest(old)
         # add changeset
         new = new.keys()
         new.sort()
-        n = @changeset.addchangeset(@manifest.node(rev), new, "commit")
+        n = @changeset.add_changeset(@manifest.node(rev), new, "commit")
         @current = n
         self.open("current", "w").write(@current.to_s)
         File.delete(self.join("to-add")) if update
@@ -99,7 +99,7 @@ class Repository
         l = mmap.keys()
         l.sort()
         l.each{|f|
-            r = filelog(self, f)
+            r = Filelog.new(self, @path, f)
             t = r.revision(r.rev(mmap[f]))
             begin
                 file(f,"w").write(t)
@@ -139,8 +139,8 @@ class Repository
         changed.sort()
         changed.each{|f|
             print "merging #{f}"
-            f1 = filelog(self, f)
-            f2 = filelog(other, f)
+            f1 = Filelog.new(self, @path, f)
+            f2 = Filelog.new(other, @path, f)
             rev = f1.merge(f2)
             n[f] = f1.node(rev) if rev
         }
@@ -201,7 +201,7 @@ class Repository
         n = n.keys()
         n.sort()
         cn = -1 if co == cn
-        self.changelog.addchangeset(node, n, "merge", co, cn)
+        self.changelog.add_changeset(node, n, "merge", co, cn)
     end
 
     def os_walk(dir, ignore)

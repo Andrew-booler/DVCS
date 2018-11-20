@@ -22,7 +22,7 @@ class Manifest < Revlog
     def add_manifest(file_map, p1 = nil, p2 = nil)
         file_map = file_map.sort
         arr = []
-        file_map.each {|name, name_hash| arr << name.to_s + " " + name_hash}
+        file_map.each {|name, name_hash| arr << name.to_s + " " + name_hash.to_s}
         text = arr.join("\n")
         return self.add_revision(Revnode.new(text),p1,p2)
     end
