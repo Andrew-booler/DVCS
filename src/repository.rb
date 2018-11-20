@@ -16,6 +16,9 @@ class Repository
             Dir.mkdir(@path) unless File.exists?(@path)
             Dir.mkdir(self.join("data")) unless File.exists?(self.join("data"))
             Dir.mkdir(self.join("index")) unless File.exists?(self.join("index"))
+            # create to-add and to-delete
+            self.add([])
+            self.delete([])
         end
         # initilize head changeLog and minifest
         @changelog = Changelog.new(self, @path)
