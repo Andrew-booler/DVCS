@@ -51,13 +51,13 @@ class Repository
         delete = []
         begin
             File.open('.jsaw/to-add').each_line{|l| update << l[0..-2]}
-        rescue IOError
-            p "to-add file error"
+        rescue 
+            p "can't find to-add file"
         end
         begin
             File.open('.jsaw/to-delete').each_line{|l| delete << l[0..-2]}
         rescue
-            p "to-delete file error"
+            p "can't find to-delete"
         end
         # check in files
         new_thing = {}
@@ -75,10 +75,6 @@ class Repository
         # add changeset
         new_thing = new_thing.keys()
         new_thing.sort()
-        
-        # p @changelog.extract("vhj")
-        # p @manifest.node(rev)
-        # p 1 if @changelog != Changelog::None
         n = @changelog.add_changeset(@manifest.node(rev), new_thing, "commit")
         @current = n
         self.open("current", "w").write(@current.to_s)
