@@ -5,6 +5,9 @@ sha1 = Digest::SHA1.new
 NULLID = sha1.update('').hexdigest
 
 class Revlog
+    # for testing purposes only
+    attr_reader :indexfile, :datafile, :index, :nodemap
+
     def initialize(indexfile, datafile)
         @indexfile = indexfile
         @datafile = datafile

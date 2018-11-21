@@ -1,6 +1,6 @@
 require "minitest/autorun"
 
-class CommitTest < Minitest::Test
+class LogTest < Minitest::Test
 
     def setup
         Dir.chdir "src" if File.basename(Dir.getwd) != "src"
@@ -9,10 +9,12 @@ class CommitTest < Minitest::Test
         `./jsaw init`
     end
 
-    def test_commit
+    def test_log
         `touch test.txt`
         `echo "hello world" >> test.txt`
         `./jsaw add test.txt`
         `./jsaw commit "added test.txt"`
+        out = `./jsaw log`
+        assert_equal 7, out.lines.length
     end
 end
