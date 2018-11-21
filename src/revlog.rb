@@ -20,7 +20,7 @@ class Revlog
                 @index << e
                 n += 1
             end
-        rescue IOError
+        rescue
         end
     end
 

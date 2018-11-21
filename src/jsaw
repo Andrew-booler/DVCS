@@ -11,7 +11,7 @@ args = ARGV[1..ARGV.length]
 
 # creates an empty repository
 if cmd == "init" or cmd == "create"
-    repo = Repository.new("", true)
+    repo = Repository.new(".", true)
     exit
 else
     repo = Repository.new()
