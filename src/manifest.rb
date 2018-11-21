@@ -1,29 +1,32 @@
-# filelog.rb created by Mingyang 11.4.18
 require 'digest'
 require_relative 'revlog.rb'
 
 class Manifest < Revlog
-    def initialize(repo, path)
-        index_file = File.join(path, "00manifest.i")
-        data_file = File.join(path, "00manifest.d")
-        super(index_file, data_file)
+    def initialize(repo)
+        @repo = repo
+        Revlog.new("00manifest.i", "00manifest.d")
+    end
+
+    def open(self, file, mode="r"):
+        @repo.open(file, mode)
     end
 
     def manifest(rev)
-        text = self.revision(rev).get_content()
-        hash = {}
+        text = self.revision(rev)
+        map = {}
         text.lines.each do |line|
-            name,name_hash = line.split(" ")
-            hash[name] = name_hash
+            name, name_hash = line.split(" ")
+            map[name] = name_hash
         end
-        return hash
+        return map
     end
 
-    def add_manifest(file_map, p1 = nil, p2 = nil)
-        file_map = file_map.sort
+    def addmanifest(filemap, p1 = nil, p2 = nil)
+        files = filemap.keys
+        files.sort!
         arr = []
         file_map.each {|name, name_hash| arr << name.to_s + " " + name_hash.to_s}
         text = arr.join("\n")
-        return self.add_revision(Revnode.new(text),p1,p2)
+        self.add_revision(text, p1, p2)
     end
 end
