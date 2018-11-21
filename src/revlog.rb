@@ -151,8 +151,8 @@ class Revlog
         n2 = self.node(p2)
         sha1 = Digest::SHA1.new
         node = sha1.update(n1 + n2 + text).hexdigest
-        p node
-        p self.node(rev)
+        # p node
+        # p self.node(rev)
         if self.node(rev) != node
             raise "Consistency check failed on #{@datafile} : #{rev}"
         end

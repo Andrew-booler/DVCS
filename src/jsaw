@@ -64,6 +64,7 @@ when "log"
         changes[3].each {|f| print "", f}
         print "\ndescription:"
         print changes[4]
+        print "\n"
     end
 # merge two revisions
 when "merge"
