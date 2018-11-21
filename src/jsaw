@@ -34,10 +34,10 @@ when "status"
 # print out the current heads
 when "heads"
     # TODO
-# check the changes between two different revisions
+    # check the changes between two different revisions
 when "diff"
     # TODO
-# switch to a specific revision in history
+    # switch to a specific revision in history
 when "checkout"
     rev = repo.changelog.top()
     rev = args[0].to_i unless args.empty?
@@ -45,7 +45,7 @@ when "checkout"
 # output a file version from a given revision
 when "cat"
     # TODO
-# commit staged changes -> create new revision
+    # commit staged changes -> create new revision
 when "commit"
     if args.empty?
         puts "You must have a message to commit"
@@ -61,7 +61,7 @@ when "log"
         print "manifest nodeid:", changes[0]
         print "user:", changes[1]
         print "changed files:"
-        changes[3].each {|f| print "", f }
+        changes[3].each {|f| print "", f}
         print "description:"
         print changes[4]
     end
@@ -72,7 +72,7 @@ when "merge"
 # pull the changes from another repository
 when "pull"
     # TODO
-# push the changes into another repository
+    # push the changes into another repository
 when "push"
     # TODO
 when "help"

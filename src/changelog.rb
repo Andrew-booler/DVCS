@@ -1,12 +1,14 @@
-require_relative "revlog"
+require_relative 'revlog'
 require_relative 'diff'
+
 class Changelog < Revlog
-    def initialize(repo, path)
+    def initialize(repo)
       @repo = repo
       super( "00changelog.i", "00changelog.d")
     end
+
     def open(file, mode="r")
-        return self.repo.open(file, mode)
+        return @repo.open(file, mode)
     end
 
     def extract(text)

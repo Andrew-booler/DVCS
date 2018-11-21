@@ -7,7 +7,7 @@ class Manifest < Revlog
         Revlog.new("00manifest.i", "00manifest.d")
     end
 
-    def open(self, file, mode="r"):
+    def open(file, mode = "r")
         @repo.open(file, mode)
     end
 
@@ -25,8 +25,8 @@ class Manifest < Revlog
         files = filemap.keys
         files.sort!
         arr = []
-        file_map.each {|name, name_hash| arr << name.to_s + " " + name_hash.to_s}
+        file_map.each {|name, name_hash| arr << name.to_s + ' ' + name_hash.to_s}
         text = arr.join("\n")
-        self.add_revision(text, p1, p2)
+        self.addrevision(text, p1, p2)
     end
 end
