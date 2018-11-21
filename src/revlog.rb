@@ -15,7 +15,10 @@ class Revlog
             i = self.open(@indexfile).read
             # TODO: does this work?
             i.lines.each do |l|
-                e = l
+                e = l.split(' ')
+                (e.length-1).times do |i|
+                    e[i] = e[i].to_i
+                end
                 @nodemap[e[5]] = n
                 @index << e
                 n += 1
@@ -41,6 +44,7 @@ class Revlog
     end
 
     def parents(rev)
+        p @index
         @index[rev][3..5]
     end
 
@@ -67,7 +71,7 @@ class Revlog
             p1, p2 = self.parents(r)
             p1 if a2.includes? p1
             p2 if a2.includes? p2
-            if not a1.includes? p1
+            unless a1.includes? p1
                 a1[p1] = 1
                 ne << p1
                 if p2 >= 0 and not a1.includes? p2
@@ -91,8 +95,8 @@ class Revlog
 
         (other.tip() + 1).times.each do |r|
             id = other.node(r)
-            if not amap.includes? id:
-                                      i += 1
+            unless amap.includes? id
+                i += 1
                 x, y = other.parents(r)
                 xn, yn = [other.node(x), other.node(y)]
                 l << [r, amap[xn], amap[yn]]
@@ -118,7 +122,7 @@ class Revlog
 
     def merge(other)
         o_n = self.mergedag(other)
-        return self.resolvedog(o_n[0], o_n[1])
+        self.resolvedog(o_n[0], o_n[1])
     end
 
     def revisions(list)
@@ -191,7 +195,7 @@ class Revlog
         e = [offset, data.length, base, p1, p2, node]
 
         @index << e
-        entry = *e
+        entry = e.join(' ')
         # entry = struct.pack(">5l20s", *e)
         @nodemap[node] = n
         self.open(@indexfile, "a").write(entry)

@@ -39,7 +39,7 @@ when "diff"
     # TODO
     # switch to a specific revision in history
 when "checkout"
-    rev = repo.changelog.top()
+    rev = repo.changelog.tip()
     rev = args[0].to_i unless args.empty?
     repo.checkout(rev)
 # output a file version from a given revision
@@ -54,7 +54,7 @@ when "commit"
     repo.commit(args[0])
 # print the changelog (i.e. revision history)
 when "log"
-    repo.changelog.top.times do |i|
+    (repo.changelog.tip + 1).times do |i|
         changes = repo.changelog.changeset(i)
         p1, p2 = repo.changelog.parents(i)
         print "#{i}: #{p1} #{p2} #{repo.changelog.node(i)}"
