@@ -123,10 +123,10 @@ class Revlog
     f.seek(start)
     data = f.read(e - start)
     last = self.length(base)
-    text = data[:last]
+    text = data[0..last]
     for r in (base+1 ... rev+1)
       s = self.length(r)
-      b = data[last:last+s]
+      b = data[last..last+s]
       text = patch(text, b)
       last = last + s
     end
