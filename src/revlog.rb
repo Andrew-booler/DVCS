@@ -44,7 +44,6 @@ class Revlog
     end
 
     def parents(rev)
-        p @index
         @index[rev][3..5]
     end
 
@@ -115,9 +114,9 @@ class Revlog
     def resolvedag(old, new)
         return nil if old == new
         a = self.ancestor(old, new)
-        p ''.join(old, new, a)
+        p ', '.join(old, new, a)
         return new if old == a
-        return self.merge3(old, new, a)
+        self.merge3(old, new, a)
     end
 
     def merge(other)
@@ -142,7 +141,7 @@ class Revlog
         for r in (base + 1...rev + 1)
             s = self.length(r)
             b = data[last..last + s]
-            text = patch(text, b)
+            text = DiffUtils.patch(text, b)
             last = last + s
         end
         parents = self.parents(rev)
@@ -151,31 +150,26 @@ class Revlog
         n1 = self.node(p1)
         n2 = self.node(p2)
         sha1 = Digest::SHA1.new
-        node = sha1.update(n1 + n2 + text).hexdigest()
+        node = sha1.update(n1 + n2 + text).hexdigest
         if self.node(rev) != node
-            raise "Consistency check failed on #{self.datafile} : #{rev}"
+            raise "Consistency check failed on #{@datafile} : #{rev}"
         end
-        return text
+        text
     end
 
 
     def addrevision(text, p1 = nil, p2 = nil)
-        if text == nil
-            text = ""
-        end
-        if p1 == nil
-            p1 = self.tip()
-        end
-        if p2 == nil
-            p2 = self.tip()
-        end
-        t = self.tip()
+        text = '' if text.nil?
+        p1 = tip if p1.nil?
+        p2 = tip if p2.nil?
+
+        t = tip
         n = t + 1
 
         if n != 0
-            start = self.start(self.base(t))
+            start = self.start(base(t))
             finish = self.end(t)
-            prev = self.revision(t)
+            prev = revision(t)
             data = DiffUtils.textdiff(prev, text)
         end
         if n == 0 or (finish + data.length - start) > text.length * 2
@@ -191,7 +185,7 @@ class Revlog
         end
         n1, n2 = self.node(p1), self.node(p2)
         sha1 = Digest::SHA1.new
-        node = sha1.update(n1 + n2 + text).hexdigest()
+        node = sha1.update(n1 + n2 + text).hexdigest
         e = [offset, data.length, base, p1, p2, node]
 
         @index << e

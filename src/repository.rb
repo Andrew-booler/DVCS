@@ -65,12 +65,10 @@ class Repository
         begin
             File.open('.jsaw/to-add').each_line {|l| update << l[0..-2]}
         rescue
-            p "can't find to-add file"
         end
         begin
             File.open('.jsaw/to-delete').each_line {|l| delete << l[0..-2]}
         rescue
-            p "can't find to-delete"
         end
         # check in files
         new_thing = {}
