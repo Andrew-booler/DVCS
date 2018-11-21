@@ -4,7 +4,7 @@ require_relative 'revlog.rb'
 class Manifest < Revlog
     def initialize(repo)
         @repo = repo
-        Revlog.new("00manifest.i", "00manifest.d")
+        super("00manifest.i", "00manifest.d")
     end
 
     def open(file, mode = "r")
