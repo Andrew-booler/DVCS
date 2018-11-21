@@ -64,18 +64,18 @@ class Repository
         for f in update
             r = Filelog.new(self, @path, f)
             t = File.open(f).read()
-            r.add_revision(Revnode.new(t))
-            new_thing[f] = r.node(r.top())
+            r.addrevision(Revnode.new(t))
+            new_thing[f] = r.node(r.tip())
         end
         # update manifest
-        old = @manifest.manifest(@manifest.node(@manifest.top()))
+        old = @manifest.manifest(@manifest.tip()))
         old.update(new_thing)
         delete.each { |f| old.delete(f) }
-        rev = @manifest.add_manifest(old)
+        rev = @manifest.addmanifest(old)
         # add changeset
         new_thing = new_thing.keys()
         new_thing.sort()
-        n = @changelog.add_changeset(@manifest.node(rev), new_thing, "commit")
+        n = @changelog.addchangeset(@manifest.node(rev), new_thing, "commit")
         @current = n
         self.open("current", "w").write(@current.to_s)
         File.delete(self.join("to-add")) unless update.empty?
@@ -202,7 +202,7 @@ class Repository
         n = n.keys()
         n.sort()
         cn = -1 if co == cn
-        self.changelog.add_changeset(node, n, "merge", co, cn)
+        self.changelog.addchangeset(node, n, "merge", co, cn)
     end
 
     def os_walk(dir, ignore)
