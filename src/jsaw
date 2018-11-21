@@ -11,7 +11,7 @@ args = ARGV[1..ARGV.length]
 
 # creates an empty repository
 if cmd == "init" or cmd == "create"
-    repo = Repository.new("", true)
+    repo = Repository.new(".", true)
     exit
 else
     repo = Repository.new()
@@ -34,18 +34,18 @@ when "status"
 # print out the current heads
 when "heads"
     # TODO
-# check the changes between two different revisions
+    # check the changes between two different revisions
 when "diff"
     # TODO
-# switch to a specific revision in history
+    # switch to a specific revision in history
 when "checkout"
-    rev = repo.changelog.top()
+    rev = repo.changelog.tip()
     rev = args[0].to_i unless args.empty?
     repo.checkout(rev)
 # output a file version from a given revision
 when "cat"
     # TODO
-# commit staged changes -> create new revision
+    # commit staged changes -> create new revision
 when "commit"
     if args.empty?
         puts "You must have a message to commit"
@@ -54,16 +54,17 @@ when "commit"
     repo.commit(args[0])
 # print the changelog (i.e. revision history)
 when "log"
-    repo.changelog.top.times do |i|
+    (repo.changelog.tip + 1).times do |i|
         changes = repo.changelog.changeset(i)
         p1, p2 = repo.changelog.parents(i)
-        print "#{i}: #{p1} #{p2} #{repo.changelog.node(i)}"
-        print "manifest nodeid:", changes[0]
-        print "user:", changes[1]
-        print "changed files:"
-        changes[3].each {|f| print "", f }
-        print "description:"
+        print "#{i}: #{p1} #{p2} #{repo.changelog.node(i)} "
+        print "\nmanifest nodeid:", changes[0]
+        print "\nuser:", changes[1]
+        print "\nchanged files:"
+        changes[3].each {|f| print "", f}
+        print "\ndescription:"
         print changes[4]
+        print "\n"
     end
 # merge two revisions
 when "merge"
@@ -72,7 +73,7 @@ when "merge"
 # pull the changes from another repository
 when "pull"
     # TODO
-# push the changes into another repository
+    # push the changes into another repository
 when "push"
     # TODO
 when "help"

@@ -1,12 +1,14 @@
-require_relative "revlog"
+require_relative 'revlog'
 require_relative 'diff'
+
 class Changelog < Revlog
-    def initialize(repo, path)
+    def initialize(repo)
       @repo = repo
       super( "00changelog.i", "00changelog.d")
     end
+
     def open(file, mode="r")
-        return self.repo.open(file, mode)
+        return @repo.open(file, mode)
     end
 
     def extract(text)
@@ -16,7 +18,7 @@ class Changelog < Revlog
       date = l[2][0..-2]
       last = l.index("\n")
       files = l[3..last].collect {|f| f[0..-2]}
-      desc = "".join(l[last+1..-1])
+      desc = l[last+1..-1].join " "
       [manifest, user, date, files, desc]
     end
 
