@@ -20,6 +20,7 @@ module DiffUtils
     end
 
     def patch(prev_str, diffs)
+        return prev_str if diffs == ""
         return Diff::LCS.patch!(linesplit(prev_str), diffs)
     end
 

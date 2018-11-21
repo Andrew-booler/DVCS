@@ -1,4 +1,5 @@
 require 'digest'
+require 'json'
 require_relative 'diff'
 
 sha1 = Digest::SHA1.new
@@ -58,7 +59,7 @@ class Revlog
         @index[rev][1]
     end
 
-    def end(rev)
+    def finish(rev)
         start(rev) + length(rev)
     end
 
@@ -135,16 +136,29 @@ class Revlog
         return "" if rev == -1
         base = self.base(rev)
         start = self.start(base)
-        e = self.end(rev)
+        e = self.finish(rev)
         f = self.open(@datafile)
         f.seek(start)
         data = f.read(e - start)
+        # p data
+        # p base
         last = self.length(base)
-        text = data[0..last]
+        # p text
+        text = JSON.parse data[0...last]
         for r in (base + 1...rev + 1)
             s = self.length(r)
-            b = data[last..last + s]
-            text = DiffUtils.patch(text, b)
+            b = data[last...last + s]
+            # p "Diff ->"
+            # p text
+            # p data
+            # p b
+            # p last
+            # p s
+            # p @index
+            b_arr = JSON.parse b
+            # p "b_arr is "
+            # p b_arr
+            text = DiffUtils.patch(text, b_arr).join("")
             last = last + s
         end
         parents = self.parents(rev)
@@ -156,6 +170,12 @@ class Revlog
         node = sha1.update(n1 + n2 + text).hexdigest
         # p node
         # p self.node(rev)
+        # p "revision->"
+        # p n1
+        # p n2
+        # p text
+        # p self.node(rev)
+        # p node
         if self.node(rev) != node
             raise "Consistency check failed on #{@datafile} : #{rev}"
         end
@@ -173,30 +193,40 @@ class Revlog
 
         if n != 0
             start = self.start(base(t))
-            finish = self.end(t)
+            finish = self.finish(t)
             prev = revision(t)
-            data = DiffUtils.textdiff(prev, text)
+            data = DiffUtils.textdiff(prev, text).to_s
         end
-        if n == 0 or (finish + data.length - start) > text.length * 2
-            data = text
+        # p text.to_s
+        if n == 0 or (finish + data.length - start) > text.to_s.length * 2
+            data = text.dump
             base = n
         else
             base = self.base(t)
         end
-
+        data = data+"\n"
+        
         offset = 0
         if t >= 0
-            offset = self.end(t)
+            offset = self.finish(t)
         end
         n1, n2 = self.node(p1), self.node(p2)
         sha1 = Digest::SHA1.new
+        # p "addrevision ->"
+        # p n1
+        # p n2
+        # p text
         node = sha1.update(n1 + n2 + text).hexdigest
         e = [offset, data.length, base, p1, p2, node]
 
         @index << e
-        entry = e.join(' ')
+        entry = e.join(' ') +"\n"
+        # p "Look here"
+        # p e
+        # p data
         # entry = struct.pack(">5l20s", *e)
         @nodemap[node] = n
+        # data << "\n" if data[-1] != "\n"
         self.open(@indexfile, "a").write(entry)
         self.open(@datafile, "a").write(data)
         n
