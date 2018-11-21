@@ -10,7 +10,7 @@ args = ARGV[1..ARGV.length]
 
 
 # creates an empty repository
-if cmd == "init"
+if cmd == "init" or cmd == "create"
     repo = Repository.new("", true)
     exit
 else
@@ -47,7 +47,11 @@ when "cat"
     # TODO
 # commit staged changes -> create new revision
 when "commit"
-    repo.commit()
+    if args.empty?
+        puts "You must have a message to commit"
+        exit
+    end
+    repo.commit(args[0])
 # print the changelog (i.e. revision history)
 when "log"
     repo.changelog.top.times do |i|
@@ -72,7 +76,20 @@ when "pull"
 when "push"
     # TODO
 when "help"
-    puts "TODO: Here is some help"
+    puts "Valid commands:"
+    puts "init"
+    puts "add"
+    puts "remove"
+    puts "status"
+    puts "heads"
+    puts "diff"
+    puts "checkout"
+    puts "cat"
+    puts "commit"
+    puts "log"
+    puts "merge"
+    puts "push"
+    puts "pull"
 else
     puts "jsaw: '#{cmd}' is not a valid command. See 'jsaw help'."
 end

@@ -1,5 +1,6 @@
 require_relative 'changelog'
 require_relative 'manifest'
+require_relative 'filelog'
 require 'pathname'
 
 class Repository
@@ -13,8 +14,11 @@ class Repository
         @root = Dir.pwd
         if create
             Dir.mkdir(@path) unless File.exists?(@path)
-            Dir.mkdir(self.join("data"))
-            Dir.mkdir(self.join("index"))
+            Dir.mkdir(self.join("data")) unless File.exists?(self.join("data"))
+            Dir.mkdir(self.join("index")) unless File.exists?(self.join("index"))
+            # create to-add and to-delete
+            self.add([])
+            self.delete([])
         end
         # initilize head changeLog and minifest
         @changelog = Changelog.new(self, @path)
@@ -39,7 +43,7 @@ class Repository
     end
 
     def file(f)
-        return filelog(self, f)
+        return Filelog.new(self, @path, f)
     end
     # commit method
     def commit(message)
@@ -49,35 +53,37 @@ class Repository
             File.open('.jsaw/to-add').each_line{|l| update << l[0..-2]}
         rescue IOError
             p "to-add file error"
-            update = false
         end
         begin
             File.open('.jsaw/to-delete').each_line{|l| delete << l[0..-2]}
         rescue
             p "to-delete file error"
-            delete = false
         end
         # check in files
-        new = {}
+        new_thing = {}
         for f in update
-            r = filelog(self, f)
-            t = file(f).read()
-            r.addrevision(t)
-            new[f] = r.node(r.tip())
+            r = Filelog.new(self, @path, f)
+            t = File.open(f).read()
+            r.add_revision(Revnode.new(t))
+            new_thing[f] = r.node(r.top())
         end
         # update manifest
-        old = @manifest.manifest(@manifest.top())
-        old.update(new)
-        delete.each{|f| old.delete(f) }
-        rev = @manifest.addmanifest(old)
+        old = @manifest.manifest(@manifest.node(@manifest.top()))
+        old.update(new_thing)
+        delete.each { |f| old.delete(f) }
+        rev = @manifest.add_manifest(old)
         # add changeset
-        new = new.keys()
-        new.sort()
-        n = @changeset.addchangeset(@manifest.node(rev), new, "commit")
+        new_thing = new_thing.keys()
+        new_thing.sort()
+        
+        # p @changelog.extract("vhj")
+        # p @manifest.node(rev)
+        # p 1 if @changelog != Changelog::None
+        n = @changelog.add_changeset(@manifest.node(rev), new_thing, "commit")
         @current = n
         self.open("current", "w").write(@current.to_s)
-        File.delete(self.join("to-add")) if update
-        File.delete(self.join("to-delete")) if delete
+        File.delete(self.join("to-add")) unless update.empty?
+        File.delete(self.join("to-delete")) unless delete.empty?
     end
 
     def checkdir(path)
@@ -98,7 +104,7 @@ class Repository
         l = mmap.keys()
         l.sort()
         l.each{|f|
-            r = filelog(self, f)
+            r = Filelog.new(self, @path, f)
             t = r.revision(r.rev(mmap[f]))
             begin
                 file(f,"w").write(t)
@@ -138,8 +144,8 @@ class Repository
         changed.sort()
         changed.each{|f|
             print "merging #{f}"
-            f1 = filelog(self, f)
-            f2 = filelog(other, f)
+            f1 = Filelog.new(self, @path, f)
+            f2 = Filelog.new(other, @path, f)
             rev = f1.merge(f2)
             n[f] = f1.node(rev) if rev
         }
@@ -200,7 +206,7 @@ class Repository
         n = n.keys()
         n.sort()
         cn = -1 if co == cn
-        self.changelog.addchangeset(node, n, "merge", co, cn)
+        self.changelog.add_changeset(node, n, "merge", co, cn)
     end
 
     def os_walk(dir, ignore)
