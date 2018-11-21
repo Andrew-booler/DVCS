@@ -168,13 +168,13 @@ class Revlog
         t = self.tip()
         n = t + 1
 
-        if n
+        if n != 0
             start = self.start(self.base(t))
             finish = self.end(t)
             prev = self.revision(t)
             data = DiffUtils.textdiff(prev, text)
         end
-        if !n and (finish + len(data) - start) > len(text) * 2
+        if n == 0 or (finish + data.length - start) > text.length * 2
             data = text
             base = n
         else
@@ -188,14 +188,14 @@ class Revlog
         n1, n2 = self.node(p1), self.node(p2)
         sha1 = Digest::SHA1.new
         node = sha1.update(n1 + n2 + text).hexdigest()
-        e = [offset, len(data), base, p1, p2, node]
+        e = [offset, data.length, base, p1, p2, node]
 
-        self.index.append(e)
+        @index.append(e)
         entry = *e
         # entry = struct.pack(">5l20s", *e)
-        self.nodemap[node] = n
-        self.open(self.indexfile, "a").write(entry)
-        self.open(self.datafile, "a").write(data)
+        @nodemap[node] = n
+        self.open(@indexfile, "a").write(entry)
+        self.open(@datafile, "a").write(data)
         n
     end
 

@@ -5,7 +5,7 @@ class Filelog < Revlog
     def initialize(repo, path)
         @repo = repo
         sha1 = Digest::SHA1.new
-        hex = sha1.update(filename).hexdigest()
+        hex = sha1.update(path).hexdigest()
 
         hex.gsub("\+", "%")
         hex.gsub("/", "_")
