@@ -57,12 +57,12 @@ when "log"
     (repo.changelog.tip + 1).times do |i|
         changes = repo.changelog.changeset(i)
         p1, p2 = repo.changelog.parents(i)
-        print "#{i}: #{p1} #{p2} #{repo.changelog.node(i)}"
-        print "manifest nodeid:", changes[0]
-        print "user:", changes[1]
-        print "changed files:"
+        print "#{i}: #{p1} #{p2} #{repo.changelog.node(i)} "
+        print "\nmanifest nodeid:", changes[0]
+        print "\nuser:", changes[1]
+        print "\nchanged files:"
         changes[3].each {|f| print "", f}
-        print "description:"
+        print "\ndescription:"
         print changes[4]
     end
 # merge two revisions

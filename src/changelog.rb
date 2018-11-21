@@ -18,7 +18,7 @@ class Changelog < Revlog
       date = l[2][0..-2]
       last = l.index("\n")
       files = l[3..last].collect {|f| f[0..-2]}
-      desc = "".join(l[last+1..-1])
+      desc = l[last+1..-1].join " "
       [manifest, user, date, files, desc]
     end
 
