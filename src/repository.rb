@@ -73,7 +73,7 @@ class Repository
         # check in files
         new_thing = {}
         update.each do |f|
-            r = Filelog.new(self, @path)
+            r = Filelog.new(self, f)
             t = File.open(f).read
             r.addrevision(t)
             new_thing[f] = r.node(r.tip)

@@ -25,8 +25,11 @@ class Manifest < Revlog
         files = filemap.keys
         files.sort!
         arr = []
-        filemap.each {|name, name_hash| arr << name_hash.to_s + ' ' + name.to_s}
+        files.each {|name| arr << filemap[name].to_s + ' ' + name.to_s}
         text = arr.join("\n")
+        # p files
+        # p arr
+        # p text
         self.addrevision(text, p1, p2)
     end
 end
