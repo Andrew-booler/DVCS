@@ -91,8 +91,8 @@ class Repository
         n = @changelog.addchangeset(@manifest.node(rev), new_thing, "commit")
         @current = n
         self.open("current", "w").write(@current.to_s)
-        File.delete(self.join("to-add")) unless update.empty?
-        File.delete(self.join("to-delete")) unless delete.empty?
+        File.delete(self.join("to-add")) if File.exist? self.join("to-add")
+        File.delete(self.join("to-delete")) if File.exist? self.join("to-delete")
     end
 
     def checkdir(path)
