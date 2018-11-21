@@ -24,7 +24,7 @@ class Revlog
         end
     end
 
-    def open(fn, mode = “r”)
+    def open(fn, mode = 'r')
         File.open(fn, mode)
     end
 
