@@ -40,7 +40,7 @@ when "diff"
 # switch to a specific revision in history
 when "checkout"
     rev = repo.changelog.top()
-    rev = int(args[0]) unless args.empty?
+    rev = args[0].to_i unless args.empty?
     repo.checkout(rev)
 # output a file version from a given revision
 when "cat"
