@@ -9,12 +9,12 @@ class Filelog < Revlog
 
         hex.gsub("\+", "%")
         hex.gsub("/", "_")
-        index = File.join(path, "index", hex)
-        data = File.join(path, "data", hex)
+        index = File.join("index", hex)
+        data = File.join("data", hex)
         super(index, data)
     end
 
     def open(file, mode = "r")
-        return @repo.open(file, mode)
+        @repo.open(file, mode)
     end
 end

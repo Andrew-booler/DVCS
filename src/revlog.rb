@@ -190,7 +190,7 @@ class Revlog
         node = sha1.update(n1 + n2 + text).hexdigest()
         e = [offset, data.length, base, p1, p2, node]
 
-        @index.append(e)
+        @index << e
         entry = *e
         # entry = struct.pack(">5l20s", *e)
         @nodemap[node] = n

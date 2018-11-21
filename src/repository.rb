@@ -47,7 +47,7 @@ class Repository
                 File.rename(f + '.tmp', f)
             end
         end
-        File.open(join(path), mode)
+        File.open(f, mode)
     end
 
     def join(f)
