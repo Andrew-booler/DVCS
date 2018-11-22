@@ -76,6 +76,15 @@ when "pull"
     # push the changes into another repository
 when "push"
     # TODO
+when "clone"
+    source = args[0]
+    destination = Dir.pwd
+    if File.directory?(source+"/.jsaw")
+        system("cp -r #{source}/.jsaw #{destination}" )
+    else
+        p "no repository in given directory"
+    end
+    
 when "help"
     puts "Valid commands:"
     puts "init"
@@ -84,6 +93,7 @@ when "help"
     puts "status"
     puts "heads"
     puts "diff"
+    puts "clone"
     puts "checkout"
     puts "cat"
     puts "commit"
