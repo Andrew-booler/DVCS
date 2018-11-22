@@ -1,7 +1,20 @@
 require "minitest/autorun"
 require_relative "../../src/manifest"
+require_relative "../../src/repository"
 
 class ManifestTest < Minitest::Test
+
+    def test_init
+        repo = Repository.new()
+        m = Manifest.new(repo)
+        # TODO: fix this
+        # Dir.chdir "src" if File.basename(Dir.getwd) != "src"
+        # `./jsaw init`
+        # p File.exist? ".jsaw"
+        # Dir.chdir ".jsaw" if File.basename(Dir.getwd) != ".jsaw"
+        # assert File.exist? "00manifest.i"
+        # assert File.exist? "00manifest.d"
+    end
 
     def filemap_to_s(filemap)
         files = filemap.keys
