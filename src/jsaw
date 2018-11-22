@@ -35,16 +35,21 @@ when "status"
 when "heads"
     repo.getHead()
 when "diff"
-    # TODO
-    # switch to a specific revision in history
+
 when "checkout"
     rev = repo.changelog.tip()
     rev = args[0].to_i unless args.empty?
     repo.checkout(rev)
 # output a file version from a given revision
 when "cat"
-    # TODO
-    # commit staged changes -> create new revision
+    if args.empty?
+        puts "You must have a filename to revision"
+    else
+        rev = repo.changelog.tip
+        rev = args[1].to_i unless args.length <= 1
+        filename = args[0].to_s
+        repo.cat(filename, rev)
+    end
 when "commit"
     if args.empty?
         puts "You must have a message to commit"
