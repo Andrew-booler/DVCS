@@ -143,7 +143,7 @@ To get more insight into this project feel free to explore the [source code](htt
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+In order to contribute in the future, please email one of the authors. To learn our development process please familiarize yourself with [our workflow](https://github.com/sbudker/DVCS/wiki/Workflow#workflow).
 
 
 ## Authors
@@ -157,4 +157,4 @@ See the list of [contributors](https://github.com/sbudker/DVCS/graphs/contributo
 
 ## Acknowledgments
 
-Since this project is heavily based of mercurial. especially the original version, we 
+Since this project is heavily based of mercurial, especially the original version, we would like to give a big thanks to Matt Mackall for his work.  This project would not be the same without mercurial. We learned so much from it!
