@@ -15,7 +15,7 @@ class Manifest < Revlog
         text = self.revision(rev)
         map = {}
         text.lines.each do |line|
-            name, name_hash = line.split(" ")
+            name_hash, name = line.split(" ")
             map[name] = name_hash
         end
         return map

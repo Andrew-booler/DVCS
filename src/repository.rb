@@ -52,15 +52,36 @@ class Repository
                 File.rename(f + '.tmp', f)
             end
         end
+
         File.open(f, mode)
     end
+
+    def cat(filename, rev)
+      change = @changelog.changeset(rev)
+      manifest = @manifest.manifest(@manifest.rev(change[0]))
+      p manifest
+      if manifest.keys().include? filename
+        file_rev = manifest[filename]
+        r = Filelog.new(self, filename)
+        p r.revision(r.rev(file_rev))
+      else
+        p "the file does not exist in given revision"
+      end
+
+      # mmap = self.manifest.manifest(self.manifest.rev(mnode))
+
+      # l = mmap.keys()
+      # l.sort()
+    end
+
+
 
     def join(f)
         File.join(@path, f)
     end
 
     def file(f)
-        Filelog.new(self, @path, f)
+        Filelog.new( @path, f)
     end
 
     # commit method
@@ -82,6 +103,8 @@ class Repository
             t = File.open(f).read
             r.addrevision(t)
             new_thing[f] = r.node(r.tip)
+            p f
+          p r.node(r.tip)
         end
         # update manifest
         old = @manifest.manifest(@manifest.tip())
@@ -116,7 +139,7 @@ class Repository
         l = mmap.keys()
         l.sort()
         l.each {|f|
-            r = Filelog.new(self, @path, f)
+            r = Filelog.new(@path, f)
             t = r.revision(r.rev(mmap[f]))
             begin
                 file(f, "w").write(t)
