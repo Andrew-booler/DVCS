@@ -33,8 +33,7 @@ when "status"
     repo.diffdir(repo.root)
 # print out the current heads
 when "heads"
-    # TODO
-    # check the changes between two different revisions
+    repo.getHead()
 when "diff"
     # TODO
     # switch to a specific revision in history

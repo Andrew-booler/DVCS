@@ -37,6 +37,11 @@ class Repository
         @manifest = Manifest.new(self)
     end
 
+    def getHead()
+        head = self.open("current").read.to_i
+        val = @changelog.node(head)
+        p "curret head: #{val}"
+    end
     # might not work with path instread of just filenames
     def open(path, mode = "r")
         f = self.join(path)
