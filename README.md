@@ -74,7 +74,14 @@ echo "hello world!" >> test.txt
 
 ./jsaw init # initialize a new JSAW repository
 ./jsaw add test.txt # add test.txt 
+./jsaw remove test.txt # untrack test.txt
 ./jsaw commit "adding test.txt!" # commit the staged changes
+./jsaw log # print the revision history
+./jsaw cat test.txt 1 # print the file at revision 1
+./jsaw checkout 1 # checkout revision 1
+./jsaw status # show the changes from the last commit
+./jsaw clone <path to the repository> #copy the repo from the given path
+./jsaw heads # show the last revision
 ```
 
 After developing with our system and obtaining a more complex revision history you may find `./jsaw log` to be useful.
