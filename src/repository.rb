@@ -37,6 +37,11 @@ class Repository
         @manifest = Manifest.new(self)
     end
 
+    def getHead()
+        head = self.open("current").read.to_i
+        val = @changelog.node(head)
+        p "curret head: #{val}"
+    end
     # might not work with path instread of just filenames
     def open(path, mode = "r")
         f = self.join(path)
@@ -234,37 +239,39 @@ class Repository
 
     def diffdir(path)
         dc = {}
-        st = self.open("dircache").readline {|l|
+        test = self.open("dircache")
+        st = self.open("dircache").each_line {|l|
             split = l.split()
-            dc[split[4]] = split
+            dc[split[6]] = split
         }
         changed = []
         added = []
         for f in os_walk(@root, '.jsaw')[2]
+            f = f.basename.to_s
             stat = File.stat(f)
             if dc.include? f
                 temp = dc[f]
-                dc.delete[f]
+                dc.delete(f)
                 if temp[1] != stat.size
                     changed << f
-                    p "C #{f}"
+                    p "Changed: #{f}"
                 elsif temp[0] != stat.mode or temp[2] != stat.mtime
                     t1 = File.read(f)
                     # may not work with path instread of file name
                     t2 = self.file(f).revision(@current)
                     if t1 != t2
                         changed << f
-                        p "C #{f}"
+                        p "Changed: #{f}"
                     end
                 end
             else
                 added << f
-                p "A #{f}"
+                # p "New File:  #{f}"
             end
         end
         deleted = dc.keys()
         deleted.sort()
-        deleted.each {|d| p "D #{d}"}
+        deleted.each {|d| p "Deleted: #{d}"}
 
     end
 
