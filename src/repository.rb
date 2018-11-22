@@ -59,7 +59,6 @@ class Repository
     def cat(filename, rev)
       change = @changelog.changeset(rev)
       manifest = @manifest.manifest(@manifest.rev(change[0]))
-      p manifest
       if manifest.keys().include? filename
         file_rev = manifest[filename]
         r = Filelog.new(self, filename)
@@ -103,8 +102,6 @@ class Repository
             t = File.open(f).read
             r.addrevision(t)
             new_thing[f] = r.node(r.tip)
-            p f
-          p r.node(r.tip)
         end
         # update manifest
         old = @manifest.manifest(@manifest.tip())
