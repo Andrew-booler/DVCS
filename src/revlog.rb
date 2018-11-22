@@ -140,24 +140,12 @@ class Revlog
         f = self.open(@datafile)
         f.seek(start)
         data = f.read(e - start)
-        # p data
-        # p base
         last = self.length(base)
-        # p text
         text = JSON.parse data[0...last]
         for r in (base + 1...rev + 1)
             s = self.length(r)
             b = data[last...last + s]
-            # p "Diff ->"
-            # p text
-            # p data
-            # p b
-            # p last
-            # p s
-            # p @index
             b_arr = JSON.parse b
-            # p "b_arr is "
-            # p b_arr
             text = DiffUtils.patch(text, b_arr).join("")
             last = last + s
         end
@@ -168,14 +156,6 @@ class Revlog
         n2 = self.node(p2)
         sha1 = Digest::SHA1.new
         node = sha1.update(n1 + n2 + text).hexdigest
-        # p node
-        # p self.node(rev)
-        # p "revision->"
-        # p n1
-        # p n2
-        # p text
-        # p self.node(rev)
-        # p node
         if self.node(rev) != node
             raise "Consistency check failed on #{@datafile} : #{rev}"
         end
@@ -205,7 +185,7 @@ class Revlog
             base = self.base(t)
         end
         data = data+"\n"
-        
+
         offset = 0
         if t >= 0
             offset = self.finish(t)
