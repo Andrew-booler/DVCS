@@ -6,7 +6,7 @@ class Manifest < Revlog
         @repo = repo
         super("00manifest.i", "00manifest.d")
     end
-
+    
     def open(file, mode = "r")
         @repo.open(file, mode)
     end
@@ -27,9 +27,6 @@ class Manifest < Revlog
         arr = []
         files.each {|name| arr << filemap[name].to_s + ' ' + name.to_s}
         text = arr.join("\n")
-        # p files
-        # p arr
-        # p text
         self.addrevision(text, p1, p2)
     end
 end
