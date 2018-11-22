@@ -81,6 +81,10 @@ After developing with our system and obtaining a more complex revision history y
 
 For a comprehensive list of valid JSAW commands use `./jsaw help`
 
+Use `rm -rf .jsaw` to clear the JSAW files. This is dangerous and will permanently clear your repository.
+
+Note: diff and merge are not fully integrated and will do not behave as expected.
+
 ## Tests
 
 ### Testing strategy
@@ -119,6 +123,7 @@ ruby test/integration/add.rb
 ruby test/module/diff.rb 
 ```
 
+Sometimes you may want to clear JSAW related files to avoid strange behavior while testing since some tests leave state. To do this simply type `rm -rf .jsaw` from the `src` folder.
 
 ## Built With
 
