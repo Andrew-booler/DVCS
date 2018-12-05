@@ -296,9 +296,19 @@ class Repository
     end
 
     def add(list)
-        addlist = self.open('to-add', 'a')
-        state = self.open('dircache', 'a')
+        begin
+            addlist = self.open('to-add', 'a')
+            state = self.open('dircache', 'a')
+        rescue
+            p "File load error, Repository may not be initialized" if !initial
+            return 
+        end
         for f in list
+            # check if file exist
+            if !File.file?(f)
+                p "#{f} does not exist in directory"
+                next
+            end
             addlist.write(f + "\n")
             st = File.stat(f)
             e = [st.mode, st.size, st.mtime, f.length, f]
