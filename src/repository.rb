@@ -23,7 +23,6 @@ class Repository
         path = Dir.pwd
         @root = path
         @path = File.join(path, '.jsaw')
-
         if create
             Dir.mkdir(@path) unless File.exist?(@path)
             Dir.mkdir(self.join("data")) unless File.exist?(self.join("data"))
@@ -35,6 +34,7 @@ class Repository
         # initilize head changeLog and minifest
         @changelog = Changelog.new(self)
         @manifest = Manifest.new(self)
+        @current = 0
     end
 
     def getHead()
@@ -272,12 +272,13 @@ class Repository
             if dc.include? f
                 temp = dc[f]
                 dc.delete(f)
-                if temp[1] != stat.size
+                if temp[1] != stat.size.to_s
                     changed << f
                     p "Changed: #{f}"
-                elsif temp[0] != stat.mode or temp[2] != stat.mtime
+                elsif temp[0] != stat.mode.to_s or temp[2] != stat.mtime.to_s
                     t1 = File.read(f)
                     # may not work with path instread of file name
+                    p @current
                     t2 = self.file(f).revision(@current)
                     if t1 != t2
                         changed << f
@@ -286,7 +287,7 @@ class Repository
                 end
             else
                 added << f
-                # p "New File:  #{f}"
+                p "New File:  #{f}"
             end
         end
         deleted = dc.keys()
