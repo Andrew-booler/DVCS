@@ -48,7 +48,7 @@ class Repository
         if mode == "a" and File.file?(f)
             s = File.stat(f)
             if s.nlink > 1
-                File.open(f + '.tmp', 'w').write(File.open(f).read())
+                File.open(f + '.tmp', 'w+').write(File.open(f).read())
                 File.rename(f + '.tmp', f)
             end
         end
@@ -258,6 +258,7 @@ class Repository
     end
 
     def diffdir(path)
+        # TODO: Need to handle to-delete files and not show them
         dc = {}
         test = self.open("dircache")
         st = self.open("dircache").each_line {|l|
@@ -296,10 +297,11 @@ class Repository
 
     def add(list)
         begin
-            addlist = self.open('to-add', 'a')
+            addlist = self.open('to-add', 'a+')
             state = self.open('dircache', 'a')
+            addFile = addlist.read
         rescue
-            p "File load error, Repository may not be initialized" if !initial
+            p "File load error, Repository may not be initialized"
             return 
         end
         for f in list
@@ -308,6 +310,8 @@ class Repository
                 p "#{f} does not exist in directory"
                 next
             end
+            # check for duplicate entry
+            next if addFile.include?(f)
             addlist.write(f + "\n")
             st = File.stat(f)
             e = [st.mode, st.size, st.mtime, f.length, f]
