@@ -111,7 +111,7 @@ class Repository
         # add changeset
         new_thing = new_thing.keys()
         new_thing.sort()
-        n = @changelog.addchangeset(@manifest.node(rev), new_thing, "commit")
+        n = @changelog.addchangeset(@manifest.node(rev), new_thing, message)
         @current = n
         self.open("current", "w").write(@current.to_s)
         File.delete(self.join("to-add")) if File.exist? self.join("to-add")
@@ -276,9 +276,7 @@ class Repository
                     changed << f
                     p "Changed: #{f}"
                 elsif temp[0] != stat.mode.to_s or temp[2] != stat.mtime.to_s
-                    t1 = File.read(f)
-                    # may not work with path instread of file name
-                    p @current
+                    t1 = File.read(f)                   
                     t2 = self.file(f).revision(@current)
                     if t1 != t2
                         changed << f
@@ -287,7 +285,7 @@ class Repository
                 end
             else
                 added << f
-                p "New File:  #{f}"
+                p "Untracked File:  #{f}"
             end
         end
         deleted = dc.keys()
