@@ -11,16 +11,16 @@ class Repository
     def initialize(path = nil, create = false)
 
         if path.nil?
-            # TODO: fix this
-            # while !File.directory? File.join(p, '.jsaw')
-            #     p = File.basename(p)
-            #     raise "No repo found" if p == "/"
-            #     path = p
-            # end
+            if File.directory? File.join(Dir.pwd , '.jsaw')
+                path = Dir.pwd
+            else
+                raise "No repo found"
+            end
+
         end
 
         # create .jsaw folder with all relevant files if required
-        path = Dir.pwd
+        # path = Dir.pwd
         @root = path
         @path = File.join(path, '.jsaw')
         if create
@@ -34,7 +34,13 @@ class Repository
         # initilize head changeLog and minifest
         @changelog = Changelog.new(self)
         @manifest = Manifest.new(self)
-        @current = 0
+        
+        begin
+            @current = self.open("current").read().to_i
+        rescue
+            @current = nil
+        end
+   
     end
 
     def getHead()
