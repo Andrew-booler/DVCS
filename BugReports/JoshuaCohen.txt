@@ -1,0 +1,62 @@
+In general:  More useful error messages, not just using ruby exception stack trace.  I.e., not enough args is a common source of this.
+
+init: passes, except does not error if in dir that already has repo in it.
+
+clone: doesn't seem to copy files over? creates .jsaw folder but can't checkout files either.
+
+reproduce:
+
+jsaw init
+touch test.txt
+echo "hello world!" >> test.txt
+jsaw add test.txt
+jsaw commit "adding test.txt!" 
+
+Some other dir
+
+jsaw clone [ORIGIN_DIR]
+
+
+checkout: fails.  could not seem to get it working at all.  Simply make multiple commits with the same file, and trying to checkout gives me:
+
+
+~/Documents/JSAW/src/jsaw checkout 1
+Traceback (most recent call last):
+	5: from /Users/joshcohen/Documents/JSAW/src/jsaw:42:in `<main>'
+	4: from /Users/joshcohen/Documents/JSAW/src/repository.rb:138:in `checkout'
+	3: from /Users/joshcohen/Documents/JSAW/src/repository.rb:138:in `each'
+	2: from /Users/joshcohen/Documents/JSAW/src/repository.rb:140:in `block in checkout'
+	1: from /Users/joshcohen/Documents/JSAW/src/revlog.rb:137:in `revision'
+/Users/joshcohen/Documents/JSAW/src/revlog.rb:67:in `base': no implicit conversion from nil to integer (TypeError)
+
+
+log: passes.
+
+add: passes?  Doesn't have an error message, relies on ruby exception when adding nonexistent file.  Does not indicate if file already added, ends up causing commit to fail , so i don't know if that's a failure on this or commit, likeley this though.
+
+remove: Does not error on nonexistent file.  Does not error on previously removed file.
+
+status: passes
+
+heads: Fails.  Error if no commit has been made yet.
+ No such file or directory @ rb_sysopen - /Users/joshcohen/beta_other/.jsaw/current (Errno::ENOENT)
+
+commit failed:  If I added a nonexistant file: ~/Documents/JSAW/src/jsaw commit "first"Traceback (most recent call last):
+	5: from /Users/joshcohen/Documents/JSAW/src/jsaw:58:in `<main>'
+	4: from /Users/joshcohen/Documents/JSAW/src/repository.rb:100:in `commit'
+	3: from /Users/joshcohen/Documents/JSAW/src/repository.rb:100:in `each'
+	2: from /Users/joshcohen/Documents/JSAW/src/repository.rb:102:in `block in commit'
+	1: from /Users/joshcohen/Documents/JSAW/src/repository.rb:102:in `open'
+/Users/joshcohen/Documents/JSAW/src/repository.rb:102:in `initialize': No such file or directory @ rb_sysopen - bla (Errno::ENOENT)
+
+reproduce:
+
+add "some_non_existant_file" (errors as well)
+commit "Some message"
+
+
+cat: passes
+
+merge, diff: If it is known not to work I don't know if I can really test them
+
+
