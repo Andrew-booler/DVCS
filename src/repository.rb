@@ -25,7 +25,11 @@ class Repository
         @path = File.join(path, '.jsaw')
 
         if create
-            Dir.mkdir(@path) unless File.exist?(@path)
+            if File.exist?(@path)
+                puts "Initialized jsaw repository found at #{@path}"
+                return
+            end
+            Dir.mkdir(@path)
             Dir.mkdir(self.join("data")) unless File.exist?(self.join("data"))
             Dir.mkdir(self.join("index")) unless File.exist?(self.join("index"))
             # create to-add and to-delete
