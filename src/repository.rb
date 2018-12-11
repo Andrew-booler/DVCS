@@ -35,12 +35,14 @@ class Repository
         # initilize head changeLog and minifest
         @changelog = Changelog.new(self)
         @manifest = Manifest.new(self)
+        @current = 0
+        self.open("current", "w").write(@current.to_s)
     end
 
     def getHead()
         head = self.open("current").read.to_i
         val = @changelog.node(head)
-        p "curret head: #{val}"
+        puts "curret head: #{val}"
     end
     # might not work with path instread of just filenames
     def open(path, mode = "r")
