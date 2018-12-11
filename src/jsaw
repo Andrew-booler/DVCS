@@ -32,10 +32,10 @@ case cmd
 # and then add ability to accept patterns
 when "add"
     repo.add(args)
-# remove specific files from tracking list
+# deletes files from repo
 when "delete"
     repo.delete(args)
-#
+# remove files from staging area
 when "remove"
     repo.remove(args)
 # check the status of the current repo compared to the head
