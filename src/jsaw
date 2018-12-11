@@ -33,8 +33,11 @@ case cmd
 when "add"
     repo.add(args)
 # remove specific files from tracking list
-when "remove"
+when "delete"
     repo.delete(args)
+#
+when "remove"
+    repo.remove(args)
 # check the status of the current repo compared to the head
 when "status"
     repo.diffdir(repo.root)

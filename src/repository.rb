@@ -264,7 +264,6 @@ class Repository
     end
 
     def diffdir(path)
-        # TODO: Need to handle to-delete files and not show them
         dc = {}
         test = self.open("dircache")
         st = self.open("dircache").each_line {|l|
@@ -283,12 +282,14 @@ class Repository
                     changed << f
                     p "Changed: #{f}"
                 elsif temp[0] != stat.mode.to_s or temp[2] != stat.mtime.to_s
-                    t1 = File.read(f)                   
-                    t2 = self.file(f).revision(@current)
-                    if t1 != t2
-                        changed << f
-                        p "Changed: #{f}"
-                    end
+                    # t1 = File.read(f)                   
+                    # t2 = self.file(f).revision(@current)
+                    # if t1 != t2
+                    #     changed << f
+                    #     p "Changed: #{f}"
+                    # end
+                    changed << f
+                    p "Changed: #{f}"
                 end
             else
                 added << f
@@ -298,7 +299,28 @@ class Repository
         deleted = dc.keys()
         deleted.sort()
         deleted.each {|d| p "Deleted: #{d}"}
+        p "STAGING:"
+        self.open("to-add").each_line{|l| p l[0..-2] }
 
+    end
+
+    def remove(list)
+        begin
+            toadd = self.open("to-add").read()
+        rescue
+            p "File load error, Repository may not be initialized"
+            return 
+        end
+        for f in list
+            if not toadd.include?(f)
+                p '#{f} not in staging'
+                next
+            end
+            toadd = toadd.gsub(f+"\n", "" )
+        end
+        path = self.join("to-add")
+        File.open(path + '.tmp', 'w+').write(toadd)
+        File.rename(path + '.tmp', path)
     end
 
     def add(list)
