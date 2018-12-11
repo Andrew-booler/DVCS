@@ -33,8 +33,8 @@ class Repository
             self.delete([])
         end
         # initilize head changeLog and minifest
-        @changelog = Changelog.new(self)
         @manifest = Manifest.new(self)
+        @changelog = Changelog.new(self,@manifest)
         @current = 0
         self.open("current", "w").write(@current.to_s)
     end

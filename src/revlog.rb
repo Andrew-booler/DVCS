@@ -29,9 +29,7 @@ class Revlog
             end
         rescue
         end
-        if @index.length==0
-            addrevision('', p1 = nil, p2 = nil)
-        end
+
     end
 
     def open(fn, mode = 'r')
