@@ -267,7 +267,6 @@ class Repository
     end
 
     def diffdir(path)
-        # TODO: Need to handle to-delete files and not show them
         dc = {}
         test = self.open("dircache")
         st = self.open("dircache").each_line {|l|
@@ -286,12 +285,14 @@ class Repository
                     changed << f
                     p "Changed: #{f}"
                 elsif temp[0] != stat.mode.to_s or temp[2] != stat.mtime.to_s
-                    t1 = File.read(f)                   
-                    t2 = self.file(f).revision(@current)
-                    if t1 != t2
-                        changed << f
-                        p "Changed: #{f}"
-                    end
+                    # t1 = File.read(f)                   
+                    # t2 = self.file(f).revision(@current)
+                    # if t1 != t2
+                    #     changed << f
+                    #     p "Changed: #{f}"
+                    # end
+                    changed << f
+                    p "Changed: #{f}"
                 end
             else
                 added << f
@@ -301,7 +302,45 @@ class Repository
         deleted = dc.keys()
         deleted.sort()
         deleted.each {|d| p "Deleted: #{d}"}
+        p "STAGING:"
+        path = self.join("to-add")
+        if File.file?(path)
+            self.open("to-add").each_line{|l| p l[0..-2] }
+        end
 
+    end
+
+    def remove(list)
+        begin
+            toadd = self.open("to-add").read()
+            dcache = self.open("dircache").readlines()
+        rescue
+            p "File load error, Repository may not be initialized"
+            return 
+        end
+        for f in list
+            if not toadd.include?(f)
+                p "#{f} not in staging"
+                next
+            end
+            toadd = toadd.gsub(f+"\n", "" )
+            i = dcache.length-1
+            while i >= 0
+                if dcache[i].include?(f)
+                    dcache.delete_at(i)
+                    break
+                end 
+                i -=1
+            end
+
+        end
+        path = self.join("to-add")
+        path2 = self.join("dircache")
+        File.open(path + '.tmp', 'w+').write(toadd)
+        File.rename(path + '.tmp', path)
+        f2 = File.open(path2 + '.tmp', 'w+')
+        dcache.each{|l| f2.write(l)}
+        File.rename(path2 + '.tmp', path2)
     end
 
     def add(list)
@@ -330,8 +369,24 @@ class Repository
     end
 
     def delete(list)
-        delList = self.open('to-delete', 'a')
-        list.each {|f| delList.write(f + "\n")}
+        delList = self.open('to-delete', 'a+')
+        delFile = delList.read()
+        list.each {|f| 
+            next if delFile.include?(f)
+            delList.write(f + "\n")
+        }
+
+        dcache = self.open("dircache").readlines()
+        list.each{|f|
+            dcache.each_with_index{|l,i|
+                    dcache.delete_at(i) if dcache[i].include?(f) 
+                }
+        }
+        path2 = self.join("dircache")
+        f2 = File.open(path2 + '.tmp', 'w+')
+        dcache.each{|l| f2.write(l)}
+        File.rename(path2 + '.tmp', path2)
+
     end
 
 end
