@@ -366,8 +366,24 @@ class Repository
     end
 
     def delete(list)
-        delList = self.open('to-delete', 'a')
-        list.each {|f| delList.write(f + "\n")}
+        delList = self.open('to-delete', 'a+')
+        delFile = delList.read()
+        list.each {|f| 
+            next if delFile.include?(f)
+            delList.write(f + "\n")
+        }
+
+        dcache = self.open("dircache").readlines()
+        list.each{|f|
+            dcache.each_with_index{|l,i|
+                    dcache.delete_at(i) if dcache[i].include?(f) 
+                }
+        }
+        path2 = self.join("dircache")
+        f2 = File.open(path2 + '.tmp', 'w+')
+        dcache.each{|l| f2.write(l)}
+        File.rename(path2 + '.tmp', path2)
+
     end
 
 end
