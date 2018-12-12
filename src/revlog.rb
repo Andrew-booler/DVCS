@@ -88,7 +88,7 @@ class Revlog
     end
 
     def ancestor(a, b)
-        expand([a], [b], {a: 1}, {b: 1})
+        expand([a], [b], {a => 1}, {b => 1})
     end
 
     def mergedag(other, accumulate = nil)

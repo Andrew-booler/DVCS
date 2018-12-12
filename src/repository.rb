@@ -11,21 +11,24 @@ class Repository
     def initialize(path = nil, create = false)
 
         if path.nil?
-            # TODO: fix this
-            # while !File.directory? File.join(p, '.jsaw')
-            #     p = File.basename(p)
-            #     raise "No repo found" if p == "/"
-            #     path = p
-            # end
+            if File.directory? File.join(Dir.pwd , '.jsaw')
+                path = Dir.pwd
+            else
+                raise "No repo found"
+            end
+
         end
 
         # create .jsaw folder with all relevant files if required
-        path = Dir.pwd
+        # path = Dir.pwd
         @root = path
         @path = File.join(path, '.jsaw')
-
         if create
-            Dir.mkdir(@path) unless File.exist?(@path)
+            if File.exist?(@path)
+                puts "Initialized jsaw repository found at #{@path}"
+                return
+            end
+            Dir.mkdir(@path)
             Dir.mkdir(self.join("data")) unless File.exist?(self.join("data"))
             Dir.mkdir(self.join("index")) unless File.exist?(self.join("index"))
             # create to-add and to-delete
@@ -34,9 +37,13 @@ class Repository
         end
         # initilize head changeLog and minifest
         @manifest = Manifest.new(self)
+
         @changelog = Changelog.new(self,@manifest)
-        @current = 0
-        self.open("current", "w").write(@current.to_s)
+        begin
+            @current = self.open("current").read().to_i
+        rescue
+            @current = 0
+        end
     end
 
     def getHead()
@@ -50,7 +57,7 @@ class Repository
         if mode == "a" and File.file?(f)
             s = File.stat(f)
             if s.nlink > 1
-                File.open(f + '.tmp', 'w').write(File.open(f).read())
+                File.open(f + '.tmp', 'w+').write(File.open(f).read())
                 File.rename(f + '.tmp', f)
             end
         end
@@ -113,7 +120,7 @@ class Repository
         # add changeset
         new_thing = new_thing.keys()
         new_thing.sort()
-        n = @changelog.addchangeset(@manifest.node(rev), new_thing, "commit")
+        n = @changelog.addchangeset(@manifest.node(rev), new_thing, message)
         @current = n
         self.open("current", "w").write(@current.to_s)
         File.delete(self.join("to-add")) if File.exist? self.join("to-add")
@@ -260,6 +267,7 @@ class Repository
     end
 
     def diffdir(path)
+        # TODO: Need to handle to-delete files and not show them
         dc = {}
         test = self.open("dircache")
         st = self.open("dircache").each_line {|l|
@@ -274,12 +282,11 @@ class Repository
             if dc.include? f
                 temp = dc[f]
                 dc.delete(f)
-                if temp[1] != stat.size
+                if temp[1] != stat.size.to_s
                     changed << f
                     p "Changed: #{f}"
-                elsif temp[0] != stat.mode or temp[2] != stat.mtime
-                    t1 = File.read(f)
-                    # may not work with path instread of file name
+                elsif temp[0] != stat.mode.to_s or temp[2] != stat.mtime.to_s
+                    t1 = File.read(f)                   
                     t2 = self.file(f).revision(@current)
                     if t1 != t2
                         changed << f
@@ -288,7 +295,7 @@ class Repository
                 end
             else
                 added << f
-                # p "New File:  #{f}"
+                p "Untracked File:  #{f}"
             end
         end
         deleted = dc.keys()
@@ -298,9 +305,22 @@ class Repository
     end
 
     def add(list)
-        addlist = self.open('to-add', 'a')
-        state = self.open('dircache', 'a')
+        begin
+            addlist = self.open('to-add', 'a+')
+            state = self.open('dircache', 'a')
+            addFile = addlist.read
+        rescue
+            p "File load error, Repository may not be initialized"
+            return 
+        end
         for f in list
+            # check if file exist
+            if !File.file?(f)
+                p "#{f} does not exist in directory"
+                next
+            end
+            # check for duplicate entry
+            next if addFile.include?(f)
             addlist.write(f + "\n")
             st = File.stat(f)
             e = [st.mode, st.size, st.mtime, f.length, f]
