@@ -29,6 +29,7 @@ class Revlog
             end
         rescue
         end
+
     end
 
     def open(fn, mode = 'r')

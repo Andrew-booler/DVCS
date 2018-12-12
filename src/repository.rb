@@ -36,21 +36,20 @@ class Repository
             self.delete([])
         end
         # initilize head changeLog and minifest
-        @changelog = Changelog.new(self)
         @manifest = Manifest.new(self)
-        
+
+        @changelog = Changelog.new(self,@manifest)
         begin
             @current = self.open("current").read().to_i
         rescue
-            @current = nil
+            @current = 0
         end
-   
     end
 
     def getHead()
         head = self.open("current").read.to_i
         val = @changelog.node(head)
-        p "curret head: #{val}"
+        puts "curret head: #{val}"
     end
     # might not work with path instread of just filenames
     def open(path, mode = "r")
