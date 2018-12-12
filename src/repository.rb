@@ -300,27 +300,44 @@ class Repository
         deleted.sort()
         deleted.each {|d| p "Deleted: #{d}"}
         p "STAGING:"
-        self.open("to-add").each_line{|l| p l[0..-2] }
+        path = self.join("to-add")
+        if File.file?(path)
+            self.open("to-add").each_line{|l| p l[0..-2] }
+        end
 
     end
 
     def remove(list)
         begin
             toadd = self.open("to-add").read()
+            dcache = self.open("dircache").readlines()
         rescue
             p "File load error, Repository may not be initialized"
             return 
         end
         for f in list
             if not toadd.include?(f)
-                p '#{f} not in staging'
+                p "#{f} not in staging"
                 next
             end
             toadd = toadd.gsub(f+"\n", "" )
+            i = dcache.length-1
+            while i >= 0
+                if dcache[i].include?(f)
+                    dcache.delete_at(i)
+                    break
+                end 
+                i -=1
+            end
+
         end
         path = self.join("to-add")
+        path2 = self.join("dircache")
         File.open(path + '.tmp', 'w+').write(toadd)
         File.rename(path + '.tmp', path)
+        f2 = File.open(path2 + '.tmp', 'w+')
+        dcache.each{|l| f2.write(l)}
+        File.rename(path2 + '.tmp', path2)
     end
 
     def add(list)
