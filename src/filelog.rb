@@ -6,7 +6,6 @@ class Filelog < Revlog
         @repo = repo
         sha1 = Digest::SHA1.new
         hex = sha1.update(path).hexdigest()
-
         # hex.gsub("\+", "%")
         # hex.gsub("/", "_")
         index = File.join("index", hex)
@@ -15,6 +14,6 @@ class Filelog < Revlog
     end
 
     def open(file, mode = "r")
-        @repo.open(file, mode)
+      @repo.open(file, mode)
     end
 end

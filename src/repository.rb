@@ -41,15 +41,18 @@ class Repository
         @changelog = Changelog.new(self,@manifest)
         begin
             @current = self.open("current").read().to_i
+            @heads = eval(self.open("heads").read())
         rescue
             @current = 0
+            @heads = [0]
         end
     end
 
     def getHead()
-        head = self.open("current").read.to_i
-        val = @changelog.node(head)
-        puts "curret head: #{val}"
+        puts @heads.inject("heads:\n"){|seq,i|
+            seq+@changelog.node(i)+"\n"
+        }
+
     end
     # might not work with path instread of just filenames
     def open(path, mode = "r")
@@ -89,13 +92,14 @@ class Repository
     end
 
     def file(f)
-        Filelog.new( @path, f)
+        Filelog.new( self, f)
     end
 
     # commit method
     def commit(message)
         update = []
         delete = []
+
         begin
             File.open('.jsaw/to-add').each_line {|l| update << l[0..-2]}
         rescue
@@ -121,17 +125,29 @@ class Repository
         new_thing = new_thing.keys()
         new_thing.sort()
         n = @changelog.addchangeset(@manifest.node(rev), new_thing, message)
-        @current = n
-        self.open("current", "w").write(@current.to_s)
         File.delete(self.join("to-add")) if File.exist? self.join("to-add")
         File.delete(self.join("to-delete")) if File.exist? self.join("to-delete")
+        the_head = 0
+        @heads.each_index do |i|
+          if @heads[i].eql? @current
+              @heads[i]=n
+              the_head = 1
+              break
+          end
+        end
+        if the_head == 0
+            @heads.append(n)
+        end
+        self.open("heads",'w').write(@heads.to_s)
+        @current = n
+        self.open("current", "w").write(@current.to_s)
     end
 
     def checkdir(path)
-        dirName = File.basename(path)
+        dirName = File.dirname(path)
         return if !dirName
         if !File.directory?(dirName)
-            checkdir(dirName)
+            self.checkdir(dirName)
             Dir.mkdir(dirName)
         end
     end
@@ -145,21 +161,22 @@ class Repository
         l = mmap.keys()
         l.sort()
         l.each {|f|
-            r = Filelog.new(@path, f)
+            r = Filelog.new(self, f)
             t = r.revision(r.rev(mmap[f]))
-            begin
-                file(f, "w").write(t)
-            rescue
-                self.checkdir(f)
-                file(f, "w").write(t)
+            if t.length>0
+                begin
+                    File.open(f, "w").write(t)
+                rescue
+                    self.checkdir(f)
+                    File.open(f, "w").write(t)
+                end
             end
-
             s = File.stat(f)
             e = [s.mode, s.size, s.mtime, f.length, f]
-            e.each {|i| state.write(i + ' ')}
+            e.each {|i| st.write(i.to_s + f)}
         }
-        self.current = change
-        self.open("current", "w").write(self.current.to_s)
+        @current = rev
+        self.open("current", "w").write(@current.to_s)
     end
 
     def merge(other)
@@ -187,8 +204,8 @@ class Repository
         changed.sort()
         changed.each {|f|
             print "merging #{f}"
-            f1 = Filelog.new(self, @path, f)
-            f2 = Filelog.new(other, @path, f)
+            f1 = Filelog.new(self, f)
+            f2 = Filelog.new(self, f)
             rev = f1.merge(f2)
             n[f] = f1.node(rev) if rev
         }
