@@ -91,7 +91,7 @@ class Revlog
         expand([a], [b], {a => 1}, {b => 1})
     end
 
-    def mergedag(other, accumulate = nil)
+    def mergedag(other)
         amap = self.nodemap
         bmap = other.nodemap
         old = i = self.tip()
@@ -110,7 +110,7 @@ class Revlog
         r = other.revisions(l.collect {|e| e[0]})
         l.each do |e|
             t = r.next()
-            accumulate(t) if accumulate
+            yield t if block_given?
             self.addrevision(t, e[1], e[2])
         end
         [old, self.tip()]

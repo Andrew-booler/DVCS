@@ -193,7 +193,7 @@ class Repository
 
         # begin merge of changesets
         print "begining changeset merge"
-        co_cn = self.changelog, mergedag(other.changelog, accumulate)
+        co_cn = self.changelog, mergedag(other.changelog){|text|accumulate(text)}
         co = co_cn[0]
         cn = co_cn[1]
         return if co_cn[0] == co_cn[1]
@@ -205,7 +205,7 @@ class Repository
         changed.each {|f|
             print "merging #{f}"
             f1 = Filelog.new(self, f)
-            f2 = Filelog.new(self, f)
+            f2 = Filelog.new(other, f)
             rev = f1.merge(f2)
             n[f] = f1.node(rev) if rev
         }
