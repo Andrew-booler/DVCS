@@ -45,17 +45,23 @@ Since many of our bugs seemed to be larger issues, we broke down our resolution 
 
 ### status
 
-This command simply did not behave correctly. This was a huge issue during beta testing since this is a very frequently used command. Luckily, code related to `status` is mostly contained to the repository module. We were able to track down issues related to this command and improve the functionality by adjusting a few lines in the repository module.
+This command simply did not behave correctly. This was a huge issue during beta testing since this is a very frequently used command. Luckily, code related to `status` is mostly contained to the repository module. We were able to track down issues related to this command and improve the functionality by adjusting a few lines in the repository module. Specifically we found an error with our Revlog caused the function to break when it came down to comparing files with the same name and size. To work around this bug we added a fix to compare files by modification times. Another problem we fixed was a usability issue. We added a "staging" section which works by looking at which files are in the "to-add" file and prints them.
+
 
 ### heads
 
-Because this command is relatively simple we were able to adjust our implementation and a few safety checks to avoid crashes on edge case scenarios. In addition, we were able to make output usability improvements.
+Because this command is relatively simple we were able to adjust our implementation and a few safety checks to avoid crashes on edge case scenarios. In addition, we were able to make output usability improvements. Specifically, after repository initialization, we create a null revision in changelog and manifest. To display all the heads, we added a list in the repository to hold all the heads and update it each time commit is called.
+
 
 ### commit
 
 ### init
 
+To fix the problems we had with init, we check for the existence of a .jsaw folder to see if there is a repository in the directory. If the hidden .jsaw folder exists, the initialize function will return nothing and output an error message.
+
 ### clone
+
+Clone didn’t work because the system was always using the current working directory to initialize the repository object. This meant that when clone was called in a different directory the repository object would be nil. We have fixed this by not always using the current directory to initialize the repository object.
 
 ### add
 
