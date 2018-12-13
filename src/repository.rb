@@ -11,21 +11,24 @@ class Repository
     def initialize(path = nil, create = false)
 
         if path.nil?
-            # TODO: fix this
-            # while !File.directory? File.join(p, '.jsaw')
-            #     p = File.basename(p)
-            #     raise "No repo found" if p == "/"
-            #     path = p
-            # end
+            if File.directory? File.join(Dir.pwd , '.jsaw')
+                path = Dir.pwd
+            else
+                raise "No repo found"
+            end
+
         end
 
         # create .jsaw folder with all relevant files if required
-        path = Dir.pwd
+        # path = Dir.pwd
         @root = path
         @path = File.join(path, '.jsaw')
-
         if create
-            Dir.mkdir(@path) unless File.exist?(@path)
+            if File.exist?(@path)
+                puts "Initialized jsaw repository found at #{@path}"
+                return
+            end
+            Dir.mkdir(@path)
             Dir.mkdir(self.join("data")) unless File.exist?(self.join("data"))
             Dir.mkdir(self.join("index")) unless File.exist?(self.join("index"))
             # create to-add and to-delete
@@ -33,14 +36,20 @@ class Repository
             self.delete([])
         end
         # initilize head changeLog and minifest
-        @changelog = Changelog.new(self)
         @manifest = Manifest.new(self)
+
+        @changelog = Changelog.new(self,@manifest)
+        begin
+            @current = self.open("current").read().to_i
+        rescue
+            @current = 0
+        end
     end
 
     def getHead()
         head = self.open("current").read.to_i
         val = @changelog.node(head)
-        p "curret head: #{val}"
+        puts "curret head: #{val}"
     end
     # might not work with path instread of just filenames
     def open(path, mode = "r")
@@ -48,7 +57,7 @@ class Repository
         if mode == "a" and File.file?(f)
             s = File.stat(f)
             if s.nlink > 1
-                File.open(f + '.tmp', 'w').write(File.open(f).read())
+                File.open(f + '.tmp', 'w+').write(File.open(f).read())
                 File.rename(f + '.tmp', f)
             end
         end
@@ -111,7 +120,7 @@ class Repository
         # add changeset
         new_thing = new_thing.keys()
         new_thing.sort()
-        n = @changelog.addchangeset(@manifest.node(rev), new_thing, "commit")
+        n = @changelog.addchangeset(@manifest.node(rev), new_thing, message)
         @current = n
         self.open("current", "w").write(@current.to_s)
         File.delete(self.join("to-add")) if File.exist? self.join("to-add")
@@ -272,33 +281,85 @@ class Repository
             if dc.include? f
                 temp = dc[f]
                 dc.delete(f)
-                if temp[1] != stat.size
+                if temp[1] != stat.size.to_s
                     changed << f
                     p "Changed: #{f}"
-                elsif temp[0] != stat.mode or temp[2] != stat.mtime
-                    t1 = File.read(f)
-                    # may not work with path instread of file name
-                    t2 = self.file(f).revision(@current)
-                    if t1 != t2
-                        changed << f
-                        p "Changed: #{f}"
-                    end
+                elsif temp[0] != stat.mode.to_s or temp[2] != stat.mtime.to_s
+                    # t1 = File.read(f)                   
+                    # t2 = self.file(f).revision(@current)
+                    # if t1 != t2
+                    #     changed << f
+                    #     p "Changed: #{f}"
+                    # end
+                    changed << f
+                    p "Changed: #{f}"
                 end
             else
                 added << f
-                # p "New File:  #{f}"
+                p "Untracked File:  #{f}"
             end
         end
         deleted = dc.keys()
         deleted.sort()
         deleted.each {|d| p "Deleted: #{d}"}
+        p "STAGING:"
+        path = self.join("to-add")
+        if File.file?(path)
+            self.open("to-add").each_line{|l| p l[0..-2] }
+        end
 
     end
 
-    def add(list)
-        addlist = self.open('to-add', 'a')
-        state = self.open('dircache', 'a')
+    def remove(list)
+        begin
+            toadd = self.open("to-add").read()
+            dcache = self.open("dircache").readlines()
+        rescue
+            p "File load error, Repository may not be initialized"
+            return 
+        end
         for f in list
+            if not toadd.include?(f)
+                p "#{f} not in staging"
+                next
+            end
+            toadd = toadd.gsub(f+"\n", "" )
+            i = dcache.length-1
+            while i >= 0
+                if dcache[i].include?(f)
+                    dcache.delete_at(i)
+                    break
+                end 
+                i -=1
+            end
+
+        end
+        path = self.join("to-add")
+        path2 = self.join("dircache")
+        File.open(path + '.tmp', 'w+').write(toadd)
+        File.rename(path + '.tmp', path)
+        f2 = File.open(path2 + '.tmp', 'w+')
+        dcache.each{|l| f2.write(l)}
+        File.rename(path2 + '.tmp', path2)
+    end
+
+    def add(list)
+        begin
+            addlist = self.open('to-add', 'a+')
+            state = self.open('dircache', 'a')
+            addFile = addlist.read
+        rescue
+            p "File load error, Repository may not be initialized"
+            return 
+        end
+        for f in list
+            # check if file exist
+            if !File.file?(f)
+                p "#{f} does not exist in directory"
+                next
+            end
+            # check for duplicate entry
+            next if addFile.include?(f)
             addlist.write(f + "\n")
             st = File.stat(f)
             e = [st.mode, st.size, st.mtime, f.length, f]
@@ -308,8 +369,24 @@ class Repository
     end
 
     def delete(list)
-        delList = self.open('to-delete', 'a')
-        list.each {|f| delList.write(f + "\n")}
+        delList = self.open('to-delete', 'a+')
+        delFile = delList.read()
+        list.each {|f| 
+            next if delFile.include?(f)
+            delList.write(f + "\n")
+        }
+
+        dcache = self.open("dircache").readlines()
+        list.each{|f|
+            dcache.each_with_index{|l,i|
+                    dcache.delete_at(i) if dcache[i].include?(f) 
+                }
+        }
+        path2 = self.join("dircache")
+        f2 = File.open(path2 + '.tmp', 'w+')
+        dcache.each{|l| f2.write(l)}
+        File.rename(path2 + '.tmp', path2)
+
     end
 
 end

@@ -5,6 +5,9 @@ class Manifest < Revlog
     def initialize(repo)
         @repo = repo
         super("00manifest.i", "00manifest.d")
+        if self.index.length==0
+            self.addmanifest({}, p1 = nil, p2 = nil)
+        end
     end
     
     def open(file, mode = "r")

@@ -2,9 +2,12 @@ require_relative 'revlog'
 require_relative 'diff'
 
 class Changelog < Revlog
-    def initialize(repo)
+    def initialize(repo,manifest=nil)
         @repo = repo
         super( "00changelog.i", "00changelog.d")
+        if self.index.length==0
+            self.addchangeset(manifest, [], "", p1=nil, p2=nil)
+        end
     end
 
     def open(file, mode="r")

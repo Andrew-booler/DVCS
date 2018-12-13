@@ -13,6 +13,13 @@ args = ARGV[1..ARGV.length]
 if cmd == "init" or cmd == "create"
     repo = Repository.new(".", true)
     exit
+elsif cmd == "clone"
+    source = args[0]
+    if File.directory?(source+"/.jsaw")
+        repo = Repository.new(source)
+    else
+        p "no repo found in source"
+    end
 else
     repo = Repository.new()
 end
@@ -25,9 +32,12 @@ case cmd
 # and then add ability to accept patterns
 when "add"
     repo.add(args)
-# remove specific files from tracking list
-when "remove"
+# deletes files from repo
+when "delete"
     repo.delete(args)
+# remove files from staging area
+when "remove"
+    repo.remove(args)
 # check the status of the current repo compared to the head
 when "status"
     repo.diffdir(repo.root)
@@ -80,13 +90,14 @@ when "pull"
 when "push"
     # TODO
 when "clone"
-    source = args[0]
     destination = Dir.pwd
-    if File.directory?(source+"/.jsaw")
-        system("cp -r #{source}/.jsaw #{destination}" )
-    else
-        p "no repository in given directory"
-    end
+    system("cp -r #{source}/.jsaw #{destination}" )
+    current = File.open("./.jsaw/current").read().to_i
+    files = repo.manifest.manifest(current)
+    files.each{|f|
+        system("#{source}/jsaw cat #{f[0]} #{current} > #{f[0]}")
+    }
+    
     
 when "help"
     puts "Valid commands:"
