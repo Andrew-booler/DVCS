@@ -67,6 +67,10 @@ To fix the problems we had with init, we check for the existence of a .jsaw fold
 
 Clone didn’t work because the system was always using the current working directory to initialize the repository object. This meant that when clone was called in a different directory the repository object would be nil. We have fixed this by not always using the current directory to initialize the repository object.
 
+### checkout
+
+Because of some errors system wide errors, checkout appeared to not work at all during beta testing. After resolving a slew of other bugs, we only needed to make slight adjustments to get checkout to work. Now, with checkout functioning, we are able to have multiple branches of history which creates a much more powerful DVCS system.
+
 ### add
 
 The issues we had around add were mostly caused by missing some edge case scenarios. To resolve these issues we have added some simple checks. For example, we now check that a file really exists before adding it.
