@@ -22,10 +22,11 @@ Now you should be able to run the JSAW system!
 
 ```
 /DVCS
-	/.git
+	/BugReports
 	/images
 		LogRelationshipDiagram.png
 		ModuleUseDiagram.png
+	/JSAWDocs
 	/src
 		changelog.rb
 		diff.rb
@@ -50,6 +51,7 @@ Now you should be able to run the JSAW system!
 			repository.rb
 			revlog.rb
 	.gitignore
+	BetaTestingReport.pdf
 	Gemfile
 	README.md
 	Gemfile.lock
